@@ -1,0 +1,7 @@
+# Freebuff Desktop local state (chat history, settings) — machine-local, not source
+.freebuff/
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
