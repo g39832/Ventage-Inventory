@@ -17,6 +17,12 @@ export interface AiRequest {
   context: string;
   question: string;
   history?: AiTurn[];
+  /**
+   * Credentials resolved per-request: the user's own key (Settings → AI)
+   * takes priority; the server-wide env key is the fallback. Never sent
+   * from the browser — the server resolves it from the user's own row.
+   */
+  apiKey?: string;
 }
 
 export interface AiProvider {

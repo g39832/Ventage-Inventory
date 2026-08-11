@@ -25,7 +25,16 @@ export class OpenAIProvider implements AiProvider {
   }
 
   async generateAnswer(request: AiRequest): Promise<string> {
-    const client = new OpenAI({ apiKey: OPENAI_API_KEY });
+    // The per-request key (the user's own from Settings → AI) wins; the
+    // server-wide env key is the fallback. This file is the only place that
+    // ever sees a key, and it never leaves the server.
+    const apiKey = request.apiKey || OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new AiUnavailableError(
+        "Ask Ventage isn't set up yet. Add your own OpenAI key in Settings → AI, or ask the developer to add one."
+      );
+    }
+    const client = new OpenAI({ apiKey });
 
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
       { role: "system", content: SYSTEM_PROMPT },

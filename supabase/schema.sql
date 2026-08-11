@@ -381,8 +381,13 @@ create table if not exists app_settings (
   profile jsonb not null default '{}'::jsonb,
   shop jsonb not null default '{}'::jsonb,
   notifications jsonb not null default '{}'::jsonb,
+  -- Bring-your-own-key for Ask Ventage: { openaiKey } stored per user.
+  ai jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );
+
+-- Upgrade for existing databases: adds the per-user AI settings column.
+alter table app_settings add column if not exists ai jsonb not null default '{}'::jsonb;
 
 -- Phase 1 → Phase 2: key becomes owner_id (was a single-row `id = 1`).
 do $$

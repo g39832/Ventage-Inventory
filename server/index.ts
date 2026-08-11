@@ -14,13 +14,13 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { AiRateLimitedError, AiUnavailableError } from "./ai/errors.js";
-import { getAiProvider } from "./ai/index.js";
+import { createAiProvider } from "./ai/index.js";
 import { AuthError, userScopedClient, verifyAccessToken } from "./auth.js";
 import { buildContext } from "./ai/context.js";
 import { parseDateWindow } from "./ai/dates.js";
 import { checkRateLimit, RateLimitError, validateQuestion } from "./ai/limits.js";
 import { route } from "./ai/router.js";
-import { AI_RATE_LIMIT_PER_HOUR, PORT } from "./env.js";
+import { AI_RATE_LIMIT_PER_HOUR, OPENAI_API_KEY, PORT } from "./env.js";
 
 const app = express();
 app.use(cors());
@@ -47,11 +47,33 @@ app.post("/api/ai/ask", async (req, res) => {
     // 1. Verify the session — identity comes from the token, never the body.
     const user = await verifyAccessToken(token);
 
-    // 2. Guard rails: configured, within budget, sane input.
-    const provider = getAiProvider();
+    // 2. The user's own data client (RLS via their access token).
+    const client = userScopedClient(token);
+
+    // 3. Resolve AI credentials: the user's own key from Settings → AI wins
+    //    (read from their own app_settings row, so RLS scopes it), else the
+    //    server-wide OPENAI_API_KEY. Never trust a key from the request body.
+    const { data: aiSettings } = await client
+      .from("app_settings")
+      .select("ai")
+      .eq("owner_id", user.id)
+      .maybeSingle();
+    const userKey =
+      typeof aiSettings?.ai?.openaiKey === "string" ? aiSettings.ai.openaiKey.trim() : "";
+    const apiKey = userKey || OPENAI_API_KEY;
+    if (!apiKey) {
+      res.status(503).json({
+        error:
+          "Ask Ventage isn't set up yet. Add your own OpenAI key in Settings → AI, or ask the developer to add one.",
+      });
+      return;
+    }
+
+    // 4. Guard rails: provider, budget, sane input.
+    const provider = createAiProvider();
     if (!provider) {
       res.status(503).json({
-        error: "Ask Ventage isn't set up yet. Add an AI provider API key to the server to enable it.",
+        error: "The AI provider isn't configured on the server.",
       });
       return;
     }
@@ -74,8 +96,7 @@ app.post("/api/ai/ask", async (req, res) => {
         content: h.content.slice(0, 4000),
       }));
 
-    // 3. Query only the user's own data (RLS via their access token).
-    const client = userScopedClient(token);
+    // 5. Query only the user's own data (RLS via their access token).
     const range = parseDateWindow(message);
     const result = await buildContext(
       client,
@@ -90,11 +111,12 @@ app.post("/api/ai/ask", async (req, res) => {
       return;
     }
 
-    // 4. Send only the structured context to the AI provider and return the answer.
+    // 6. Send only the structured context to the AI provider and return the answer.
     const answer = await provider.generateAnswer({
       context: result.context,
       question: message,
       history,
+      apiKey,
     });
     res.json({ answer, relatedItemIds: result.relatedItemIds ?? [] });
   } catch (e) {

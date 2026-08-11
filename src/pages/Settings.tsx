@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Bell,
   Building2,
@@ -6,6 +6,7 @@ import {
   Download,
   Loader2,
   Save,
+  Sparkles,
   Store,
   User,
 } from "lucide-react";
@@ -28,7 +29,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { uploadAvatar } from "@/lib/db/photos";
 import { useData } from "@/lib/store";
 import { useAuth } from "@/lib/auth-provider";
-import type { AppSettings } from "@/lib/db/settings";
+import { clearAiKey, hasAiKey, saveAiKey, type AppSettings } from "@/lib/db/settings";
 import { MARKETPLACE_IDS } from "@/lib/types";
 import { initials } from "@/lib/format";
 import { toast } from "sonner";
@@ -60,6 +61,57 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Ask Ventage — bring-your-own-key state.
+  const [keySaved, setKeySaved] = useState(false);
+  const [keyInput, setKeyInput] = useState("");
+  const [keySaving, setKeySaving] = useState(false);
+  useEffect(() => {
+    let live = true;
+    hasAiKey()
+      .then((has) => {
+        if (live) setKeySaved(has);
+      })
+      .catch(() => {
+        /* settings row may not exist yet — treat as no key */
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const saveKey = () => {
+    const key = keyInput.trim();
+    if (!key) return;
+    setKeySaving(true);
+    saveAiKey(key)
+      .then(() => {
+        setKeySaved(true);
+        setKeyInput("");
+        toast("AI key saved", {
+          description: "Ask Ventage will use your own key from now on.",
+        });
+      })
+      .catch(() =>
+        toast.error("Couldn't save your AI key", {
+          description: "Check that the app's database setup is up to date, then try again.",
+        })
+      )
+      .finally(() => setKeySaving(false));
+  };
+
+  const removeKey = () => {
+    setKeySaving(true);
+    clearAiKey()
+      .then(() => {
+        setKeySaved(false);
+        toast("AI key removed", { description: "Ask Ventage will fall back to the server key, if one is set." });
+      })
+      .catch(() =>
+        toast.error("Couldn't remove your AI key", { description: "Please try again." })
+      )
+      .finally(() => setKeySaving(false));
+  };
 
   const save = (label: string) => {
     setSaving(true);
@@ -159,6 +211,9 @@ export default function Settings() {
           </TabsTrigger>
           <TabsTrigger value="notifications" className="justify-start gap-2 data-[state=active]:bg-accent/70">
             <Bell className="size-4" /> Notifications
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="justify-start gap-2 data-[state=active]:bg-accent/70">
+            <Sparkles className="size-4" /> Ask Ventage
           </TabsTrigger>
           <TabsTrigger value="data" className="justify-start gap-2 data-[state=active]:bg-accent/70">
             <Building2 className="size-4" /> Data & export
@@ -373,6 +428,48 @@ export default function Settings() {
                   <Button onClick={() => save("Notifications")} disabled={saving}>
                     <Save className="size-4" />
                     {saving ? "Saving…" : "Save changes"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="ai" className="mt-0 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-[15px]">Ask Ventage AI</CardTitle>
+                <CardDescription>
+                  Bring your own OpenAI key to power the assistant. The key is
+                  stored with your account and used only for your requests — it
+                  never appears in this app's code.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                <Field
+                  label="OpenAI API key"
+                  hint={
+                    keySaved
+                      ? "A key is saved on your account. Paste a new one to replace it."
+                      : "Create one at platform.openai.com → API keys, then paste it here."
+                  }
+                >
+                  <Input
+                    type="password"
+                    autoComplete="off"
+                    placeholder={keySaved ? "••••••••••••••••  (key saved)" : "sk-…"}
+                    value={keyInput}
+                    onChange={(e) => setKeyInput(e.target.value)}
+                  />
+                </Field>
+                <div className="flex justify-end gap-2 border-t pt-4">
+                  {keySaved ? (
+                    <Button variant="outline" disabled={keySaving} onClick={removeKey}>
+                      Remove key
+                    </Button>
+                  ) : null}
+                  <Button onClick={saveKey} disabled={keySaving || !keyInput.trim()}>
+                    {keySaving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+                    {keySaving ? "Saving…" : "Save key"}
                   </Button>
                 </div>
               </CardContent>

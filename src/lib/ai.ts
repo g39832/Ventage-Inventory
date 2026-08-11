@@ -89,7 +89,7 @@ export async function askVentage(input: AskVentageInput): Promise<AskVentageResu
     message = "You've used your Ask Ventage requests for this hour. Try again later.";
   }
   if (res.status === 503) {
-    message = "Ask Ventage isn't set up yet — an OpenAI key needs to be added on the server.";
+    message = "Ask Ventage isn't set up yet. Add your own OpenAI key in Settings → Ask Ventage, or ask the developer to add one.";
   }
   throw new Error(message);
 }
