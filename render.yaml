@@ -17,6 +17,9 @@ services:
     buildCommand: npm run build
     startCommand: npm run start
     envVars:
+      # Pin a modern Node — Vite 8 / TS 7 need >= 20.19 (Render's default can be older)
+      - key: NODE_VERSION
+        value: "22.x"
       - key: VITE_SUPABASE_URL
         sync: false
       - key: VITE_SUPABASE_ANON_KEY
