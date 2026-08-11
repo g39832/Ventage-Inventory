@@ -13,15 +13,12 @@ import express from "express";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { AiRateLimitedError, AiUnavailableError } from "./ai/errors.js";
+import { getAiProvider } from "./ai/index.js";
 import { AuthError, userScopedClient, verifyAccessToken } from "./auth.js";
 import { buildContext } from "./ai/context.js";
 import { parseDateWindow } from "./ai/dates.js";
 import { checkRateLimit, RateLimitError, validateQuestion } from "./ai/limits.js";
-import {
-  AiRateLimitedError,
-  AiUnavailableError,
-  generateAnswer,
-} from "./ai/openai.js";
 import { route } from "./ai/router.js";
 import { AI_RATE_LIMIT_PER_HOUR, PORT } from "./env.js";
 
@@ -51,9 +48,10 @@ app.post("/api/ai/ask", async (req, res) => {
     const user = await verifyAccessToken(token);
 
     // 2. Guard rails: configured, within budget, sane input.
-    if (!process.env.OPENAI_API_KEY) {
+    const provider = getAiProvider();
+    if (!provider) {
       res.status(503).json({
-        error: "Ask Ventage isn't set up yet. Add an OpenAI API key to the server to enable it.",
+        error: "Ask Ventage isn't set up yet. Add an AI provider API key to the server to enable it.",
       });
       return;
     }
@@ -92,8 +90,8 @@ app.post("/api/ai/ask", async (req, res) => {
       return;
     }
 
-    // 4. Send only the structured context to OpenAI and return the answer.
-    const answer = await generateAnswer({
+    // 4. Send only the structured context to the AI provider and return the answer.
+    const answer = await provider.generateAnswer({
       context: result.context,
       question: message,
       history,

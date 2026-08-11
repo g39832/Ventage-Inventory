@@ -25,6 +25,9 @@ export const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? "";
 export const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
 export const OPENAI_MAX_TOKENS = Number(process.env.OPENAI_MAX_TOKENS ?? 700);
 
+/** Which AI provider plugin to use (see server/ai/index.ts). */
+export const AI_PROVIDER = process.env.AI_PROVIDER ?? "openai";
+
 export const PORT = Number(process.env.PORT ?? 8787);
 
 /** Per-user sliding-window cap (hourly) so AI usage stays controllable. */
