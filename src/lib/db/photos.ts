@@ -43,11 +43,14 @@ export async function uploadItemPhoto(
   position: number
 ): Promise<ItemPhoto> {
   const client = db();
+  const userId = await requireUserId();
   const blob = await optimizeImage(file);
-  // The path is relative to the bucket — supabase-js already prefixes the
-  // bucket id when building the object key (full path: bucket/<path>). The
-  // storage RLS policies match on the FIRST folder, so it must be the item id.
-  const path = `${itemId}/${crypto.randomUUID()}.jpg`;
+  // Path is relative to the bucket (supabase-js prefixes the bucket id). The
+  // FIRST folder must be the user id: storage RLS policies compare it directly
+  // to auth.uid() — subqueries inside storage policies are unreliable, so the
+  // item id lives in the second folder and item ownership is enforced when the
+  // inventory_photos row is inserted (table RLS).
+  const path = `${userId}/${itemId}/${crypto.randomUUID()}.jpg`;
 
   const { error: uploadError } = await client.storage
     .from(ITEM_PHOTOS_BUCKET)
