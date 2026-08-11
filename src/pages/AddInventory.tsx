@@ -112,8 +112,10 @@ export default function AddInventory() {
         description: `“${form.name}” is now in your inventory.`,
       });
       navigate(`/inventory/${item.id}`);
-    } catch {
-      toast.error("Couldn't add the item", { description: "Please try again." });
+    } catch (e) {
+      toast.error("Couldn't add the item", {
+        description: e instanceof Error ? e.message : "Please try again.",
+      });
     } finally {
       setSaving(false);
     }

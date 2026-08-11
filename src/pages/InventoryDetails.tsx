@@ -355,8 +355,10 @@ export default function InventoryDetails() {
       toast(`Uploaded ${photoFiles.length} photo${photoFiles.length === 1 ? "" : "s"}`);
       setPhotoFiles([]);
       setPhotoOpen(false);
-    } catch {
-      toast.error("Upload failed", { description: "Please try again." });
+    } catch (e) {
+      toast.error("Upload failed", {
+        description: e instanceof Error ? e.message : "Please try again.",
+      });
     } finally {
       setPhotoUploading(false);
     }

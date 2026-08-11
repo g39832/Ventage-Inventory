@@ -146,8 +146,10 @@ export default function Settings() {
       const url = await uploadAvatar(file);
       await updateProfile({ avatarUrl: url });
       toast("Avatar updated", { description: "Your new photo is live." });
-    } catch {
-      toast.error("Couldn't upload avatar", { description: "Please try again." });
+    } catch (e) {
+      toast.error("Couldn't upload avatar", {
+        description: e instanceof Error ? e.message : "Please try again.",
+      });
     } finally {
       setAvatarUploading(false);
     }
