@@ -14,7 +14,10 @@ services:
     name: ventage
     runtime: node
     plan: free
-    buildCommand: npm run build
+    # npm ci --include=dev: Render sets NODE_ENV=production, which makes npm
+    # skip devDependencies (vite, typescript, @types/*) and breaks the build.
+    # This forces a complete, deterministic install regardless of NODE_ENV.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start
     envVars:
       # Pin a modern Node — Vite 8 / TS 7 need >= 20.19 (Render's default can be older)
