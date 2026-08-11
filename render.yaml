@@ -1,0 +1,25 @@
+# Render blueprint for Ventage.
+# A Node web service: it builds the frontend, serves it, AND runs the
+# Ask Ventage API (server/). Use via "New → Blueprint", or create a
+# Web Service manually with:
+#   build command:   npm run build
+#   start command:   npm run start
+#
+# Environment variables (set in Render dashboard, keep them secret):
+#   VITE_SUPABASE_URL    — https://<ref>.supabase.co          (public)
+#   VITE_SUPABASE_ANON_KEY — Supabase anon/publishable key    (public)
+#   OPENAI_API_KEY       — server-side OpenAI key             (SECRET)
+services:
+  - type: web
+    name: ventage
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm run start
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false

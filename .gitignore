@@ -1,7 +1,31 @@
 # Freebuff Desktop local state (chat history, settings) — machine-local, not source
 .freebuff/
 
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+server-dist/
+*.local
+
+# Environment (secrets — never commit)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
 # OS noise
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
