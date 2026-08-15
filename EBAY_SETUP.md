@@ -65,6 +65,10 @@ The integration stores per-user tokens in a new `ebay_tokens` table:
 
 ## 4. Test (recommended: sandbox first)
 
+> For the complete step-by-step sandbox test — connect, publish, sync, unlist,
+> re-publish, and every error path with pass/fail checks — see `EBAY_TESTING.md`.
+> The abbreviated walkthrough below is the quick version.
+
 1. In `developer.ebay.com → Your apps`, create a **sandbox** test app and use its keys +
    `EBAY_SANDBOX=true` in your env.
 2. Create a sandbox test user (Sandbox → Test accounts) and sign in as them on eBay.
