@@ -29,6 +29,7 @@ import * as settingsService from "@/lib/db/settings";
 import type { AppSettings } from "@/lib/db/settings";
 import * as tasksService from "@/lib/db/tasks";
 import { liveListingsOn } from "@/lib/data";
+import { MAX_PHOTOS_PER_ITEM } from "@/lib/image";
 import type {
   Expense,
   Item,
@@ -343,8 +344,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [photos]);
 
   const addPhoto = useCallback(async (itemId: string, file: File) => {
-    const position = photosRef.current.filter((p) => p.itemId === itemId).length;
-    const photo = await photosService.uploadItemPhoto(itemId, file, position);
+    const existing = photosRef.current.filter((p) => p.itemId === itemId).length;
+    if (existing >= MAX_PHOTOS_PER_ITEM) {
+      throw new Error(`Each item can have up to ${MAX_PHOTOS_PER_ITEM} photos.`);
+    }
+    const photo = await photosService.uploadItemPhoto(itemId, file, existing);
     photosRef.current = [...photosRef.current, photo];
     setPhotos((prev) => [...prev, photo]);
     return photo;

@@ -4,30 +4,6 @@ import { dec, toNum } from "@/lib/money";
 import type { MarketplaceId } from "@/lib/types";
 import { DEFAULT_SETTINGS, saveSettings } from "@/lib/db/settings";
 
-/* ── Static reference data (must exist for the app to render) ── */
-
-const MARKETPLACES: {
-  id: MarketplaceId;
-  name: string;
-  tagline: string;
-  integration: "official" | "manual";
-  sort_order: number;
-}[] = [
-  { id: "ebay", name: "eBay", tagline: "Your biggest channel — synced automatically.", integration: "official", sort_order: 1 },
-  { id: "depop", name: "Depop", tagline: "Core reseller channel, tracked manually for now.", integration: "manual", sort_order: 2 },
-  { id: "poshmark", name: "Poshmark", tagline: "Great for bundles and higher-priced pieces.", integration: "manual", sort_order: 3 },
-  { id: "vinted", name: "Vinted", tagline: "Fast turnaround on basics and tees.", integration: "manual", sort_order: 4 },
-  { id: "mercari", name: "Mercari", tagline: "Not connected yet — add when you start selling there.", integration: "manual", sort_order: 5 },
-  { id: "facebook", name: "Facebook Marketplace", tagline: "Great for local pickup on larger items.", integration: "manual", sort_order: 6 },
-];
-
-/** Reference rows are required for every account (demo or empty). */
-export async function ensureMarketplaces(): Promise<void> {
-  const client = db();
-  const { error } = await client.from("marketplaces").upsert(MARKETPLACES);
-  if (error) throw new Error(error.message);
-}
-
 /* ── Demo dataset (relative dates so it always looks current) ── */
 
 interface DemoItem {
@@ -211,7 +187,6 @@ const DEMO_TASKS: { title: string; dueDaysFromNow: number; kind: string; done: b
 /** Populate the current user's account with a realistic demo shop. */
 export async function seedDemoData(): Promise<void> {
   const client = db();
-  await ensureMarketplaces();
 
   // Items (owner stamped by trigger)
   const { data: itemRows, error: itemErr } = await client
@@ -384,7 +359,6 @@ export async function seedDemoData(): Promise<void> {
 
 /** Set up an empty account (no demo rows beyond the reference data). */
 export async function emptyOnboarding(): Promise<void> {
-  await ensureMarketplaces();
   await saveSettings({
     ...DEFAULT_SETTINGS,
     profile: { ...DEFAULT_SETTINGS.profile, displayName: "", email: "" },

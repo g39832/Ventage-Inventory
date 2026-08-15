@@ -5,9 +5,21 @@
  * downloads the file directly; no server round-trip needed.
  */
 
-/** Quote a single field for CSV (handles commas, quotes, and newlines). */
+/**
+ * Quote a single field for CSV (handles commas, quotes, and newlines).
+ *
+ * Also guards against spreadsheet formula injection: untrusted text that
+ * starts with `=`, `+`, or `@` is prefixed with a single quote so Excel,
+ * Sheets, and Numbers treat it as text instead of executing it. Numbers pass
+ * through untouched so negative amounts stay numeric. (`-` is deliberately
+ * not guarded because it collides with legitimate negative money values; a
+ * bare leading `-` is not a practical injection vector the way `=`/`+`/`@` are.)
+ */
 export function csvField(value: string | number | null | undefined): string {
-  const s = value === null || value === undefined ? "" : String(value);
+  if (value === null || value === undefined) return "";
+  if (typeof value === "number") return String(value);
+  let s = String(value);
+  if (/^[=+@\t\r]/.test(s)) s = `'${s}`;
   if (/[",\n\r]/.test(s)) {
     return `"${s.replace(/"/g, '""')}"`;
   }

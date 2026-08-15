@@ -16,13 +16,28 @@ import { AuthError, userScopedClient, verifyAccessToken } from "./auth.js";
 import { buildContext } from "./ai/context.js";
 import { ebayRouter } from "./marketplaces/ebay/router.js";
 import { parseDateWindow } from "./ai/dates.js";
-import { checkRateLimit, RateLimitError, validateQuestion } from "./ai/limits.js";
+import { checkGlobalRateLimit, checkRateLimit, RateLimitError, validateQuestion } from "./ai/limits.js";
 import { route } from "./ai/router.js";
-import { AI_RATE_LIMIT_PER_HOUR, OPENAI_API_KEY } from "./env.js";
+import {
+  AI_RATE_LIMIT_GLOBAL_PER_HOUR,
+  AI_RATE_LIMIT_PER_HOUR,
+  CORS_ORIGINS,
+  OPENAI_API_KEY,
+} from "./env.js";
 
 export function createApp() {
   const app = express();
-  app.use(cors());
+  // CORS is locked to the app's own origins. Requests without an Origin
+  // header (same-origin, server-to-server) are always allowed; browsers from
+  // any other origin get no CORS headers and are blocked by the browser.
+  app.use(
+    cors({
+      origin(origin, callback) {
+        if (!origin || CORS_ORIGINS.includes(origin)) callback(null, true);
+        else callback(null, false);
+      },
+    })
+  );
   app.use(express.json({ limit: "64kb" }));
 
   app.get("/health", (_req, res) => {
@@ -82,6 +97,7 @@ export function createApp() {
         return;
       }
       checkRateLimit(user.id, AI_RATE_LIMIT_PER_HOUR);
+      checkGlobalRateLimit(AI_RATE_LIMIT_GLOBAL_PER_HOUR);
 
       const message = validateQuestion(req.body?.message);
       const itemId =

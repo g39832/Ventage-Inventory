@@ -103,6 +103,35 @@ eBay is the one marketplace with a real API, and Threadly makes it a two-part se
 | OpenAI | Pay-per-use (`gpt-4o-mini` by default) or each user brings their own key | $0–few $/mo |
 | eBay developer app | Free | $0 |
 
+## Security & cost controls
+
+Threadly is multi-tenant by design, with defense-in-depth so one user can never
+reach another user's data or run up the owner's bill:
+
+- **Data isolation** — every table is Row-Level-Security scoped to `auth.uid()`;
+  the shared `marketplaces` reference table is read-only for users.
+- **No secrets in the browser** — the anon key is the only key on the client.
+  The OpenAI key and eBay tokens live server-side; eBay tokens are stored
+  per-user behind RLS.
+- **Server auth** — every `/api` route verifies the Supabase session; the
+  server never trusts a client-supplied user id.
+- **AI spend caps** — per-user hourly limit (default 30) plus a server-wide
+  hourly limit (default 500, set `AI_RATE_LIMIT_GLOBAL_PER_HOUR=0` to disable).
+  For a hard backstop, set a monthly usage limit on the OpenAI account dashboard
+  and a spend cap in Supabase.
+- **eBay throttling** — publish/unlist/sync are rate-limited per user (60/hour)
+  so a misbehaving client can't get the developer app flagged.
+- **Upload limits** — photos are resized client-side, capped at 15 MB per file
+  and 12 per item.
+- **CSV export safety** — exported spreadsheets guard against formula injection.
+- **CORS locked** — the API only answers cross-origin requests from the app's
+  own origins (`CORS_ORIGIN`).
+
+Recommended one-time dashboard settings for production: keep **email
+confirmation on** in Supabase (blocks bot signups), set a **storage limit**
+under Supabase → Storage, and set an **OpenAI hard limit** so Ask Threadly can
+never exceed a monthly budget.
+
 ## Support
 
 Questions, issues, or help connecting eBay? Email the app owner — the in-app footer and Settings → *Need help?* link point to the address configured in `src/lib/brand.ts` (`SUPPORT_EMAIL`). Change that one constant to update it everywhere.

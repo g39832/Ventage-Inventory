@@ -20,6 +20,30 @@ export function checkRateLimit(userId: string, limitPerHour: number): void {
   }
 }
 
+/**
+ * Server-wide sliding window (one counter for the whole instance). Per-user
+ * limits are easy to defeat by creating many accounts; this caps the total so
+ * the owner's server-side OpenAI key can't be drained. `limitPerHour <= 0`
+ * disables the check.
+ */
+const globalBucket = { count: 0, resetAt: 0 };
+
+export function checkGlobalRateLimit(limitPerHour: number): void {
+  if (limitPerHour <= 0) return;
+  const now = Date.now();
+  if (globalBucket.resetAt <= now) {
+    globalBucket.count = 1;
+    globalBucket.resetAt = now + WINDOW_MS;
+    return;
+  }
+  globalBucket.count += 1;
+  if (globalBucket.count > limitPerHour) {
+    throw new RateLimitError(
+      "Ask Threadly is at capacity right now. Please try again in a little while."
+    );
+  }
+}
+
 /** Validates the question text; returns the trimmed question or throws. */
 export function validateQuestion(message: unknown): string {
   if (typeof message !== "string") {

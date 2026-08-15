@@ -15,6 +15,7 @@ export async function optimizeImage(
   if (!file.type.startsWith("image/")) {
     throw new Error("That file isn't an image.");
   }
+  assertImageSize(file);
   return renderScaled(file, maxDimension, quality);
 }
 
@@ -27,6 +28,7 @@ export async function optimizeAvatar(
   if (!file.type.startsWith("image/")) {
     throw new Error("That file isn't an image.");
   }
+  assertImageSize(file);
   return renderScaled(file, size, quality, { square: true });
 }
 
@@ -78,3 +80,12 @@ async function renderScaled(
 /** Human-friendly validation for the picker. */
 export const MAX_PHOTOS_PER_ITEM = 12;
 export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic"];
+
+/** Reject files larger than this before any processing. */
+export const MAX_IMAGE_BYTES = 15 * 1024 * 1024; // 15 MB
+
+function assertImageSize(file: File): void {
+  if (file.size > MAX_IMAGE_BYTES) {
+    throw new Error("That photo is larger than 15 MB. Choose a smaller image.");
+  }
+}

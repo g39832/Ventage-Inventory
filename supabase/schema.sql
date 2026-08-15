@@ -154,6 +154,17 @@ create table if not exists marketplaces (
   sort_order integer not null default 0
 );
 
+-- Canonical reference rows (shared, read-only for users). Seeded here so the
+-- app never needs write access to this table. Idempotent: safe to re-run.
+insert into marketplaces (id, name, tagline, integration, sort_order) values
+  ('ebay',     'eBay',                'Your biggest channel — synced automatically.', 'official', 1),
+  ('depop',    'Depop',               'Core reseller channel, tracked manually for now.', 'manual', 2),
+  ('poshmark', 'Poshmark',            'Great for bundles and higher-priced pieces.', 'manual', 3),
+  ('vinted',   'Vinted',              'Fast turnaround on basics and tees.', 'manual', 4),
+  ('mercari',  'Mercari',             'Not connected yet — add when you start selling there.', 'manual', 5),
+  ('facebook', 'Facebook Marketplace', 'Great for local pickup on larger items.', 'manual', 6)
+on conflict (id) do nothing;
+
 -- ------------------------------------------------------------
 -- marketplace_connections — per-user connection state
 -- ------------------------------------------------------------
@@ -482,27 +493,18 @@ drop policy if exists "users_update_own" on users;
 create policy "users_update_own" on users
   for update using (id = auth.uid()) with check (id = auth.uid());
 
--- ── marketplaces: static reference data ──
--- Readable by any signed-in user. Writes are allowed for signed-in users so
--- the app can seed/repair the 6 reference rows on onboarding. The rows are
--- benign lookup data (id/name/tagline); consider restricting writes to a
--- privileged role if this ever becomes user-editable content.
+-- ── marketplaces: static reference data (read-only for users) ──
+-- Seeded by the INSERT above (and supabase/seed.sql for dev). Users can only
+-- read: no insert/update/delete policies exist, so a signed-in user can never
+-- add, rename, or remove marketplace rows for everyone else.
 alter table marketplaces enable row level security;
 drop policy if exists "marketplaces_read" on marketplaces;
 create policy "marketplaces_read" on marketplaces
   for select to authenticated using (true);
 
 drop policy if exists "marketplaces_insert" on marketplaces;
-create policy "marketplaces_insert" on marketplaces
-  for insert to authenticated with check (true);
-
 drop policy if exists "marketplaces_update" on marketplaces;
-create policy "marketplaces_update" on marketplaces
-  for update to authenticated using (true) with check (true);
-
 drop policy if exists "marketplaces_delete" on marketplaces;
-create policy "marketplaces_delete" on marketplaces
-  for delete to authenticated using (true);
 
 -- ── marketplace_connections ──
 alter table marketplace_connections enable row level security;

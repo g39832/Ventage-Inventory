@@ -35,6 +35,28 @@ export const AI_RATE_LIMIT_PER_HOUR = Number(
   process.env.AI_RATE_LIMIT_PER_HOUR ?? 30
 );
 
+/**
+ * Server-wide AI request cap (hourly). A backstop so many accounts can't
+ * collectively burn through the owner's server-wide OpenAI key. 0 disables it.
+ */
+export const AI_RATE_LIMIT_GLOBAL_PER_HOUR = Number(
+  process.env.AI_RATE_LIMIT_GLOBAL_PER_HOUR ?? 500
+);
+
+/**
+ * Origins allowed to call /api cross-origin (comma-separated). Defaults to the
+ * Vite dev/preview loopback origins. Same-origin and server-to-server requests
+ * (no Origin header) are always allowed. Set to your production origin if the
+ * frontend is ever served from a different host than this server.
+ */
+export const CORS_ORIGINS = (
+  process.env.CORS_ORIGIN ??
+  "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173"
+)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 /* ── eBay marketplace integration (server-side only) ──────────────── */
 
 /**

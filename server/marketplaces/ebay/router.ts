@@ -74,6 +74,30 @@ async function requireUser(req: Request): Promise<string> {
   return user.id;
 }
 
+/** Thrown when a user exceeds the hourly cap on eBay actions. */
+class EbayRateLimitedError extends Error {}
+
+// In-memory per-user sliding window for the eBay mutating endpoints. eBay's
+// own API rate-limits too, but this keeps one misbehaving client from
+// hammering the owner's eBay developer app and getting it flagged.
+const ebayBuckets = new Map<string, { count: number; resetAt: number }>();
+const EBAY_OP_LIMIT_PER_HOUR = 60;
+
+function throttleEbay(userId: string): void {
+  const now = Date.now();
+  const bucket = ebayBuckets.get(userId);
+  if (!bucket || bucket.resetAt <= now) {
+    ebayBuckets.set(userId, { count: 1, resetAt: now + 60 * 60 * 1000 });
+    return;
+  }
+  bucket.count += 1;
+  if (bucket.count > EBAY_OP_LIMIT_PER_HOUR) {
+    throw new EbayRateLimitedError(
+      "You've hit the hourly limit for eBay actions. Try again in a little while."
+    );
+  }
+}
+
 /* ── Connect: start + complete ─────────────────────────────────────── */
 
 ebayRouter.get(
@@ -194,6 +218,7 @@ ebayRouter.post(
   "/list",
   handle(async (req, res) => {
     const userId = await requireUser(req);
+    throttleEbay(userId);
     const itemId = typeof req.body?.itemId === "string" ? req.body.itemId : "";
     if (!itemId) {
       res.status(400).json({ error: "Missing item id." });
@@ -315,6 +340,7 @@ ebayRouter.post(
   "/unlist",
   handle(async (req, res) => {
     const userId = await requireUser(req);
+    throttleEbay(userId);
     const itemId = typeof req.body?.itemId === "string" ? req.body.itemId : "";
     if (!itemId) {
       res.status(400).json({ error: "Missing item id." });
@@ -369,6 +395,7 @@ ebayRouter.post(
   "/sync",
   handle(async (req, res) => {
     const userId = await requireUser(req);
+    throttleEbay(userId);
     requireEbayConfigured();
     const client = userScopedClient(reqBearerToken(req));
     const { accessToken } = await withValidAccessToken(client, userId);
@@ -416,6 +443,10 @@ ebayRouter.post(
 ebayRouter.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AuthError) {
     res.status(401).json({ error: err.message });
+    return;
+  }
+  if (err instanceof EbayRateLimitedError) {
+    res.status(429).json({ error: err.message });
     return;
   }
   if (err instanceof EbayError) {

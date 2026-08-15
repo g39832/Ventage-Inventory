@@ -13,6 +13,8 @@
 #   EBAY_CLIENT_SECRET   — eBay developer app secret         (SECRET)
 #   EBAY_REDIRECT_URI    — https://<your-app>/ebay/callback  (public-ish)
 #   EBAY_SANDBOX         — "true" to test against eBay's sandbox
+#   AI_RATE_LIMIT_GLOBAL_PER_HOUR — server-wide AI cap (optional)
+#   CORS_ORIGIN          — allowed cross-origin frontend (optional)
 services:
   - type: web
     name: threadly
@@ -40,4 +42,8 @@ services:
       - key: EBAY_REDIRECT_URI
         sync: false
       - key: EBAY_SANDBOX
+        sync: false
+      - key: AI_RATE_LIMIT_GLOBAL_PER_HOUR
+        sync: false
+      - key: CORS_ORIGIN
         sync: false
