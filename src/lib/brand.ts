@@ -4,9 +4,8 @@
  * Keeping the app name and support contact in one place means a buyer can
  * re-brand or update the support address without hunting through the UI.
  *
- * ⚠️  TODO — set SUPPORT_EMAIL to your real support address before shipping.
- * `example.com` is a reserved placeholder domain that never resolves, so it's
- * safe to leave here during development.
+ * ⚠️  Change SUPPORT_EMAIL here to update the support address everywhere
+ * (auth footer + Settings → Need help?).
  */
 export const APP_NAME = "Threadly";
-export const SUPPORT_EMAIL = "support@example.com";
+export const SUPPORT_EMAIL = "grayson123007@gmail.com";
