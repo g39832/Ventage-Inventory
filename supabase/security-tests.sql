@@ -4,6 +4,8 @@
 -- schema.sql. It simulates two signed-in users by setting the
 -- JWT claim (`sub`) and switching to the `authenticated` role,
 -- then proves user A can never see or touch user B's records.
+-- It also asserts the shared `marketplaces` reference table is
+-- read-only for signed-in users (no insert/update/delete).
 --
 -- Expected: every "should FAIL" assertion raises an exception
 -- that propagates (so the test visibly fails), and every
@@ -191,9 +193,51 @@ select '18. Bob still sees his own item' as test, count(*) as rows
 from inventory_items where sku = 'B-1';
 
 -- ════════════════════════════════════════════════════════════
+-- TESTS — shared `marketplaces` table is READ-ONLY for users
+-- (identity-agnostic: the same for Alice or Bob)
+-- ════════════════════════════════════════════════════════════
+
+-- 19. A signed-in user can READ the shared reference rows: PASS
+--     (expect ≥ 2 rows: the fixture rows, or all 6 if schema.sql ran first)
+select '19. marketplaces readable' as test, count(*) as rows
+from marketplaces;
+
+-- 20. A user cannot INSERT a marketplace row: FAIL expected
+do $$
+begin
+  insert into marketplaces (id, name) values ('hacked', 'Fake channel');
+  raise exception 'FAIL: user inserted a marketplace row';
+exception
+  when insufficient_privilege then null;
+end $$;
+
+-- 21. A user cannot UPDATE a marketplace row: FAIL expected
+do $$
+begin
+  update marketplaces set name = 'hacked' where id = 'ebay';
+  if found then
+    raise exception 'FAIL: user updated a marketplace row';
+  end if;
+end $$;
+
+-- 22. A user cannot DELETE a marketplace row: FAIL expected
+do $$
+begin
+  delete from marketplaces where id = 'depop';
+  if found then
+    raise exception 'FAIL: user deleted a marketplace row';
+  end if;
+end $$;
+
+-- 23. The reference rows survive the attempts above: PASS
+select '23. marketplaces intact' as test, count(*) as rows
+from marketplaces where id in ('ebay', 'depop');
+
+-- ════════════════════════════════════════════════════════════
 -- Summary
 -- ════════════════════════════════════════════════════════════
-select '✅ RLS isolation verified: no FAIL raised, all count checks as expected.'
+select '✅ RLS isolation + read-only reference data verified:'
+       || ' no FAIL raised, all count checks as expected.'
        || ' (A FAIL exception would have aborted this script.)' as result;
 
 rollback;
