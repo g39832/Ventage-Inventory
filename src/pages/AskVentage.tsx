@@ -56,9 +56,9 @@ export default function AskVentage() {
   return (
     <div>
       <PageHeader
-        title="Ask Ventage"
+        title="Ask Regroove"
         description="Ask questions about your inventory, sales, and business."
-        crumbs={[{ label: "Ask Ventage" }]}
+        crumbs={[{ label: "Ask Regroove" }]}
         actions={
           messages.length > 0 ? (
             <Button
@@ -87,7 +87,7 @@ export default function AskVentage() {
               <div className="max-w-md">
                 <p className="text-[15px] font-semibold">Ask about your shop</p>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                  Ventage looks up the answers in your own inventory, sales, and
+                  Regroove looks up the answers in your own inventory, sales, and
                   expenses — then explains them. Try one of these:
                 </p>
               </div>
@@ -202,7 +202,7 @@ export default function AskVentage() {
             </Button>
           </div>
           <p className="mx-auto mt-2 max-w-3xl text-[11.5px] text-muted-foreground/70">
-            Ventage answers from your own data only. AI usage is charged to your OpenAI account —
+            Regroove answers from your own data only. AI usage is charged to your OpenAI account —
             limited to 30 questions per hour.
           </p>
         </div>

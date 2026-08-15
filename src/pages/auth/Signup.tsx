@@ -38,7 +38,7 @@ export default function Signup() {
       if (needsEmailConfirmation) {
         setConfirmed(true);
       } else {
-        toast("Welcome to Ventage!", {
+        toast("Welcome to Regroove!", {
           description: "Your shop is ready — let's get you set up.",
         });
         // The router lands on /onboarding once the session is active.

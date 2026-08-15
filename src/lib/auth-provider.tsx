@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: authUser.id,
         email: authUser.email ?? "",
         displayName:
-          String(meta.display_name ?? meta.full_name ?? meta.name ?? "") || "Ventage user",
+          String(meta.display_name ?? meta.full_name ?? meta.name ?? "") || "Regroove user",
         avatarUrl: String(meta.avatar_url ?? meta.picture ?? "") || undefined,
         onboarded: false,
       });

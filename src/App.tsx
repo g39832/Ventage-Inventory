@@ -32,9 +32,9 @@ function SetupRequired() {
       <Card className="w-full max-w-lg">
         <CardContent className="space-y-4 pt-6">
           <div>
-            <h1 className="text-lg font-semibold tracking-tight">Connect Ventage to Supabase</h1>
+            <h1 className="text-lg font-semibold tracking-tight">Connect Regroove to Supabase</h1>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Ventage is built on Supabase and needs your project's public URL and anon key
+              Regroove is built on Supabase and needs your project's public URL and anon key
               before it can load your data.
             </p>
           </div>

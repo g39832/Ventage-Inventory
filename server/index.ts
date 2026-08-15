@@ -1,5 +1,5 @@
 /**
- * Ventage server entrypoint.
+ * Regroove server entrypoint.
  *
  * Local dev:  `npm run dev:server`  (http://localhost:8787; Vite proxies /api)
  * Production: `npm run build` then `npm run start` (serves dist/ + /api).
@@ -13,10 +13,10 @@ import { PORT } from "./env.js";
 const app = createApp();
 
 app.listen(PORT, () => {
-  console.log(`Ventage server listening on http://localhost:${PORT}`);
+  console.log(`Regroove server listening on http://localhost:${PORT}`);
   if (!process.env.OPENAI_API_KEY) {
     console.warn(
-      "[warn] OPENAI_API_KEY is not set — Ask Ventage will return 503 until it is."
+      "[warn] OPENAI_API_KEY is not set — Ask Regroove will return 503 until it is."
     );
   }
   if (!process.env.EBAY_CLIENT_ID || !process.env.EBAY_CLIENT_SECRET) {

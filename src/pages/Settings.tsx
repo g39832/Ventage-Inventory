@@ -88,7 +88,7 @@ export default function Settings() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  // Ask Ventage — bring-your-own-key state.
+  // Ask Regroove — bring-your-own-key state.
   const [keySaved, setKeySaved] = useState(false);
   const [keyInput, setKeyInput] = useState("");
   const [keySaving, setKeySaving] = useState(false);
@@ -115,7 +115,7 @@ export default function Settings() {
         setKeySaved(true);
         setKeyInput("");
         toast("AI key saved", {
-          description: "Ask Ventage will use your own key from now on.",
+          description: "Ask Regroove will use your own key from now on.",
         });
       })
       .catch(() =>
@@ -131,7 +131,7 @@ export default function Settings() {
     clearAiKey()
       .then(() => {
         setKeySaved(false);
-        toast("AI key removed", { description: "Ask Ventage will fall back to the server key, if one is set." });
+        toast("AI key removed", { description: "Ask Regroove will fall back to the server key, if one is set." });
       })
       .catch(() =>
         toast.error("Couldn't remove your AI key", { description: "Please try again." })
@@ -241,7 +241,7 @@ export default function Settings() {
             <Bell className="size-4" /> Notifications
           </TabsTrigger>
           <TabsTrigger value="ai" className="justify-start gap-2 data-[state=active]:bg-accent/70">
-            <Sparkles className="size-4" /> Ask Ventage
+            <Sparkles className="size-4" /> Ask Regroove
           </TabsTrigger>
           <TabsTrigger value="data" className="justify-start gap-2 data-[state=active]:bg-accent/70">
             <Building2 className="size-4" /> Data & export
@@ -465,7 +465,7 @@ export default function Settings() {
           <TabsContent value="ai" className="mt-0 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-[15px]">Ask Ventage AI</CardTitle>
+                <CardTitle className="text-[15px]">Ask Regroove AI</CardTitle>
                 <CardDescription>
                   Bring your own OpenAI key to power the assistant. The key is
                   stored with your account and used only for your requests — it
@@ -517,7 +517,7 @@ export default function Settings() {
                   label="Export inventory (CSV)"
                   desc="All items with costs, prices, and status."
                   onClick={() => {
-                    downloadCsv("ventage-inventory.csv", [
+                    downloadCsv("regroove-inventory.csv", [
                       ["SKU", "Name", "Brand", "Category", "Size", "Era", "Condition", "Status", "Cost", "Asking price", "Sold price", "Acquired", "Listed", "Notes", "Tags"],
                       ...items.map((i) => [
                         i.sku,
@@ -537,14 +537,14 @@ export default function Settings() {
                         i.tags.join(" | "),
                       ]),
                     ]);
-                    toast("Inventory exported", { description: "ventage-inventory.csv downloaded." });
+                    toast("Inventory exported", { description: "regroove-inventory.csv downloaded." });
                   }}
                 />
                 <ExportRow
                   label="Export sales history (CSV)"
                   desc="Every sale with fees and payouts."
                   onClick={() => {
-                    downloadCsv("ventage-sales.csv", [
+                    downloadCsv("regroove-sales.csv", [
                       ["Date", "Item", "Marketplace", "Sold price", "Fees", "Shipping", "Payout", "Profit"],
                       ...sales.map((s) => [
                         s.soldDate,
@@ -557,18 +557,18 @@ export default function Settings() {
                         s.profit.toFixed(2),
                       ]),
                     ]);
-                    toast("Sales exported", { description: "ventage-sales.csv downloaded." });
+                    toast("Sales exported", { description: "regroove-sales.csv downloaded." });
                   }}
                 />
                 <ExportRow
                   label="Export expenses (CSV)"
                   desc="All categorized expenses."
                   onClick={() => {
-                    downloadCsv("ventage-expenses.csv", [
+                    downloadCsv("regroove-expenses.csv", [
                       ["Date", "Category", "Description", "Amount"],
                       ...expenses.map((e) => [e.date, e.category, e.description, e.amount.toFixed(2)]),
                     ]);
-                    toast("Expenses exported", { description: "ventage-expenses.csv downloaded." });
+                    toast("Expenses exported", { description: "regroove-expenses.csv downloaded." });
                   }}
                 />
               </CardContent>

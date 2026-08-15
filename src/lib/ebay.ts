@@ -2,7 +2,7 @@
  * eBay integration — frontend client.
  *
  * The browser never talks to eBay directly (no keys, no tokens). It calls
- * the Ventage server (/api/marketplaces/ebay/*) with the user's Supabase
+ * the Regroove server (/api/marketplaces/ebay/*) with the user's Supabase
  * session token; the server holds the eBay OAuth tokens and does the work.
  */
 

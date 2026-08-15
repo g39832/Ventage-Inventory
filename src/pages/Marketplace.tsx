@@ -304,7 +304,7 @@ export default function Marketplace() {
                         ? "Connected through eBay's API. Publish items from any item's Marketplace status tab."
                         : mc.status === "connected"
                           ? "Tracked manually — connect with eBay for the real integration."
-                          : "Connect your eBay account to publish listings straight from Ventage."
+                          : "Connect your eBay account to publish listings straight from Regroove."
                     : mc.note ||
                       `${mc.name} doesn't offer a third-party API, so listings and sales are tracked manually here.`}
                 </p>

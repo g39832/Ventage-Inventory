@@ -126,7 +126,7 @@ export function ImproveListingDialog({
         <DialogHeader>
           <DialogTitle>Improve listing</DialogTitle>
           <DialogDescription>
-            Ask Ventage drafts copy from this item's details. Review and edit
+            Ask Regroove drafts copy from this item's details. Review and edit
             before saving — nothing changes until you hit Save.
           </DialogDescription>
         </DialogHeader>

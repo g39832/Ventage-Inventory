@@ -46,10 +46,10 @@ export default function Onboarding() {
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <VentageMark className="size-12" />
           <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome to Ventage{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}
+            Welcome to Regroove{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}
           </h1>
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-            Your account is ready. Start with a pre-filled demo shop so you can see how Ventage
+            Your account is ready. Start with a pre-filled demo shop so you can see how Regroove
             works, or begin with a clean slate.
           </p>
         </div>

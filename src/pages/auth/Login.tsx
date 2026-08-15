@@ -68,10 +68,10 @@ export default function Login() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your Ventage shop."
+      subtitle="Sign in to your Regroove shop."
       footer={
         <>
-          New to Ventage?{" "}
+          New to Regroove?{" "}
           <Link to="/signup" className="font-medium text-primary hover:underline">
             Create an account
           </Link>

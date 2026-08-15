@@ -1,5 +1,5 @@
 /**
- * Domain models for Ventage.
+ * Domain models for Regroove.
  *
  * The pages and components only ever consume these shapes through `lib/data.ts`,
  * so a real API client can replace the mock layer later without touching the UI.
@@ -55,7 +55,7 @@ export interface Item {
   size: string;
   era: string;
   condition: string;
-  /** Long-form listing copy (AI-assisted via Ask Ventage). */
+  /** Long-form listing copy (AI-assisted via Ask Regroove). */
   description: string;
   sku: string;
   purchasePrice: number;

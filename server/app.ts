@@ -1,5 +1,5 @@
 /**
- * Ventage Express app (routes only — no `listen`).
+ * Regroove Express app (routes only — no `listen`).
  *
  * Separated from index.ts so tests (server/smoke.ts) can build the app
  * and serve it on an ephemeral port without opening the real listener.
@@ -59,7 +59,7 @@ export function createApp() {
       const auth = req.headers.authorization ?? "";
       const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
       if (!token) {
-        res.status(401).json({ error: "Sign in to use Ask Ventage." });
+        res.status(401).json({ error: "Sign in to use Ask Regroove." });
         return;
       }
 
@@ -83,7 +83,7 @@ export function createApp() {
       if (!apiKey) {
         res.status(503).json({
           error:
-            "Ask Ventage isn't set up yet. Add your own OpenAI key in Settings → AI, or ask the app owner to configure one.",
+            "Ask Regroove isn't set up yet. Add your own OpenAI key in Settings → AI, or ask the app owner to configure one.",
         });
         return;
       }
@@ -159,7 +159,7 @@ export function createApp() {
       // Never leak SQL, stack traces, or internals to the client.
       console.error("[ask-ventage]", e instanceof Error ? e.message : "unknown error");
       res.status(500).json({
-        error: "Ask Ventage hit a snag. Please try again in a moment.",
+        error: "Ask Regroove hit a snag. Please try again in a moment.",
       });
     }
   });
