@@ -1,4 +1,4 @@
-# Threadly — eBay Sandbox Test Script
+# Ventage — eBay Sandbox Test Script
 
 > Run this end-to-end against **eBay's sandbox** before relying on the eBay
 > integration in production (and before requesting production access, if you
@@ -151,9 +151,9 @@ On the eBay card → **Sync now**.
 **Optional — exercise the order path (needs the 2nd sandbox account):**
 1. Sign into the sandbox site as the **other** test account and **buy** your
    listing (the sandbox allows self-purchase for testing).
-2. Back in Threadly → **Sync now**. `soldCount` reflects the sold quantity and
+2. Back in Ventage → **Sync now**. `soldCount` reflects the sold quantity and
    `recentSales` includes the order (SKU, title, quantity, price, date).
-3. Sales are **not** auto-created in Threadly by design (fees are only known
+3. Sales are **not** auto-created in Ventage by design (fees are only known
    after payout) — the sync reports the sale; you log the final numbers
    manually on the item.
 
@@ -222,7 +222,7 @@ curl -s -X POST $BASE/unlist -H "Authorization: Bearer $TOKEN" -H "Content-Type:
 - [ ] Startup log has no eBay key warning; status says `configured: true`
 - [ ] OAuth connect completes with the **sandbox** user and saves tokens per-user
 - [ ] Publish creates a live listing visible in the sandbox seller hub
-- [ ] Item shows **Live** in Threadly with a listing id + timeline event
+- [ ] Item shows **Live** in Ventage with a listing id + timeline event
 - [ ] Sync returns matching `listings`/`listed` counts (and `recentSales` after a test purchase)
 - [ ] Unlist ends the listing on eBay and clears the local row
 - [ ] Re-publish is idempotent (one listing, not two)

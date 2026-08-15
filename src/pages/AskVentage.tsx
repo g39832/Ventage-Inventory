@@ -4,14 +4,14 @@ import { ArrowUp, Eraser, Shirt, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/common/PageHeader";
-import { askThreadly, SUGGESTED_QUESTIONS, type AiTurn } from "@/lib/ai";
+import { askVentage, SUGGESTED_QUESTIONS, type AiTurn } from "@/lib/ai";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage extends AiTurn {
   relatedItemIds?: string[];
 }
 
-export default function AskThreadly() {
+export default function AskVentage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,7 @@ export default function AskThreadly() {
     setError(null);
     setLoading(true);
     try {
-      const result = await askThreadly({ message: question, history });
+      const result = await askVentage({ message: question, history });
       setMessages((prev) => [
         ...prev,
         {
@@ -56,9 +56,9 @@ export default function AskThreadly() {
   return (
     <div>
       <PageHeader
-        title="Ask Threadly"
+        title="Ask Ventage"
         description="Ask questions about your inventory, sales, and business."
-        crumbs={[{ label: "Ask Threadly" }]}
+        crumbs={[{ label: "Ask Ventage" }]}
         actions={
           messages.length > 0 ? (
             <Button
@@ -87,7 +87,7 @@ export default function AskThreadly() {
               <div className="max-w-md">
                 <p className="text-[15px] font-semibold">Ask about your shop</p>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                  Threadly looks up the answers in your own inventory, sales, and
+                  Ventage looks up the answers in your own inventory, sales, and
                   expenses — then explains them. Try one of these:
                 </p>
               </div>
@@ -202,7 +202,7 @@ export default function AskThreadly() {
             </Button>
           </div>
           <p className="mx-auto mt-2 max-w-3xl text-[11.5px] text-muted-foreground/70">
-            Threadly answers from your own data only. AI usage is charged to your OpenAI account —
+            Ventage answers from your own data only. AI usage is charged to your OpenAI account —
             limited to 30 questions per hour.
           </p>
         </div>

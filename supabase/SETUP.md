@@ -1,4 +1,4 @@
-# Threadly — Supabase Setup Checklist
+# Ventage — Supabase Setup Checklist
 
 Click-by-click, from zero to a running app. One-time, ~10 minutes. Free tier, no credit card.
 
@@ -7,7 +7,7 @@ Click-by-click, from zero to a running app. One-time, ~10 minutes. Free tier, no
 1. Go to [supabase.com](https://supabase.com) and sign up (GitHub or email).
 2. Click **New project**.
 3. Pick your **Organization** (or create one).
-4. Enter a **Name** (e.g. `threadly`).
+4. Enter a **Name** (e.g. `ventage`).
 5. Set a strong **Database Password** — save it somewhere.
 6. Pick a **Region** close to you (e.g. US East / EU West).
 7. Click **Create new project** and wait 1–2 minutes for it to provision.

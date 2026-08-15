@@ -29,7 +29,7 @@ import { initials } from "@/lib/format";
 import { SidebarContent } from "@/components/layout/Sidebar";
 
 const TITLES: [string, string][] = [
-  ["/ask", "Ask Threadly"],
+  ["/ask", "Ask Ventage"],
   ["/inventory/new", "Add Inventory"],
   ["/inventory", "Inventory"],
   ["/sales", "Sales"],
@@ -68,7 +68,7 @@ export function TopBar({ onOpenCommand }: { onOpenCommand: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
 
   const match = TITLES.find(([path]) => location.pathname.startsWith(path));
-  const title = location.pathname === "/" ? "Dashboard" : (match?.[1] ?? "Threadly");
+  const title = location.pathname === "/" ? "Dashboard" : (match?.[1] ?? "Ventage");
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b bg-background/85 px-4 backdrop-blur md:px-6">
@@ -180,7 +180,7 @@ export function TopBar({ onOpenCommand }: { onOpenCommand: () => void }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="px-2">
-              <p className="text-sm font-semibold">{user?.displayName || "Threadly user"}</p>
+              <p className="text-sm font-semibold">{user?.displayName || "Ventage user"}</p>
               <p className="text-xs font-normal text-muted-foreground">
                 {user?.email || "No email set yet"}
               </p>

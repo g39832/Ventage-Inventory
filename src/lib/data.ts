@@ -1,5 +1,5 @@
 /**
- * Pure computation helpers for Threadly.
+ * Pure computation helpers for Ventage.
  *
  * These take the data (items/sales/expenses) as arguments so they can run
  * against whatever the store currently holds — no module-level constants,

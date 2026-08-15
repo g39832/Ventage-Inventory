@@ -1,5 +1,5 @@
 -- ============================================================
--- Threadly — eBay integration schema
+-- Ventage — eBay integration schema
 -- Run this in the Supabase SQL editor. Idempotent: safe to re-run.
 --
 -- Adds the `ebay_tokens` table, which stores each user's eBay
@@ -10,7 +10,7 @@
 --   * Tokens are scoped by owner_id and protected by RLS the same
 --     way every other user table is — only the owner (or a server
 --     call acting as that user) can read them.
---   * The frontend never sees these tokens; the Threadly server
+--   * The frontend never sees these tokens; the Ventage server
 --     reads the user's own row with their session token.
 --   * The server refuses to start the eBay flow until the app
 --     owner sets EBAY_CLIENT_ID / EBAY_CLIENT_SECRET on the server.

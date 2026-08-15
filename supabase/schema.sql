@@ -1,5 +1,5 @@
 -- ============================================================
--- Threadly — Phase 2 schema (auth + multi-user RLS)
+-- Ventage — Phase 2 schema (auth + multi-user RLS)
 -- Run this in the Supabase SQL editor. It is idempotent: safe to
 -- run on a fresh database OR on top of the Phase 1 schema.
 --
@@ -392,7 +392,7 @@ create table if not exists app_settings (
   profile jsonb not null default '{}'::jsonb,
   shop jsonb not null default '{}'::jsonb,
   notifications jsonb not null default '{}'::jsonb,
-  -- Bring-your-own-key for Ask Threadly: { openaiKey } stored per user.
+  -- Bring-your-own-key for Ask Ventage: { openaiKey } stored per user.
   ai jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );

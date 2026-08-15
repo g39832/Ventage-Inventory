@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { APP_NAME, SUPPORT_EMAIL } from "@/lib/brand";
 
-export function ThreadlyMark({ className = "" }: { className?: string }) {
+export function VentageMark({ className = "" }: { className?: string }) {
   return (
     <span
       className={`flex size-10 shrink-0 items-center justify-center rounded-lg bg-clay text-[#fbf3e4] shadow-sm ${className}`}
@@ -48,7 +48,7 @@ export function AuthLayout({
         <div className="pointer-events-none absolute -top-28 -left-24 size-96 rounded-full bg-clay/25 blur-3xl" />
         <div className="pointer-events-none absolute -right-24 -bottom-32 size-96 rounded-full bg-[#8a6d3b]/25 blur-3xl" />
         <div className="relative flex items-center gap-3">
-          <ThreadlyMark />
+          <VentageMark />
           <span className="text-xl font-semibold tracking-tight">{APP_NAME}</span>
         </div>
         <div className="relative max-w-md space-y-5">
@@ -88,7 +88,7 @@ export function AuthLayout({
       <main className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-sm animate-fade-up">
           <div className="mb-6 flex items-center gap-3 lg:hidden">
-            <ThreadlyMark />
+            <VentageMark />
             <span className="text-xl font-semibold tracking-tight">{APP_NAME}</span>
           </div>
           <Card className="border-border/70 shadow-sm">

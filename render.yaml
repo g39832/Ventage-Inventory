@@ -1,6 +1,6 @@
-# Render blueprint for Threadly.
+# Render blueprint for Ventage.
 # A Node web service: it builds the frontend, serves it, AND runs the
-# Ask Threadly API (server/). Use via "New → Blueprint", or create a
+# Ask Ventage API (server/). Use via "New → Blueprint", or create a
 # Web Service manually with:
 #   build command:   npm run build
 #   start command:   npm run start
@@ -17,7 +17,7 @@
 #   CORS_ORIGIN          — allowed cross-origin frontend (optional)
 services:
   - type: web
-    name: threadly
+    name: ventage
     runtime: node
     plan: free
     # npm ci --include=dev: Render sets NODE_ENV=production, which makes npm

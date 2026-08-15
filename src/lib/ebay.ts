@@ -2,7 +2,7 @@
  * eBay integration — frontend client.
  *
  * The browser never talks to eBay directly (no keys, no tokens). It calls
- * the Threadly server (/api/marketplaces/ebay/*) with the user's Supabase
+ * the Ventage server (/api/marketplaces/ebay/*) with the user's Supabase
  * session token; the server holds the eBay OAuth tokens and does the work.
  */
 

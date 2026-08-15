@@ -1,5 +1,5 @@
 /**
- * Controlled context builders for Ask Threadly.
+ * Controlled context builders for Ask Ventage.
  *
  * Each builder queries ONLY the data relevant to the question, scoped to the
  * authenticated user via RLS (the client carries the user's access token),
@@ -272,16 +272,16 @@ async function buildOverview(
   const spent = expenses.reduce((acc, e) => acc.plus(num(e.amount)), new Decimal(0));
 
   const sections = [
-    "INVENTORY (computed by Threadly)",
+    "INVENTORY (computed by Ventage)",
     `- ${total} items total: ${listed} listed, ${drafts} draft, ${sold} sold`,
     "",
-    `SALES (${scopeLabel(range, "last 30 recorded")} — computed by Threadly)`,
+    `SALES (${scopeLabel(range, "last 30 recorded")} — computed by Ventage)`,
     `- ${sales.length} sales in view — revenue ${usd(revenue)}, fees+shipping ${usd(fees)}, profit ${usd(profit)}`,
     sales.length
       ? sales.slice(0, 5).map((s) => `- ${s.item_name} — ${usd(s.sold_price)} on ${s.marketplace_id} (${s.sold_date})`).join("\n")
       : "- No sales recorded yet.",
     "",
-    `EXPENSES (${scopeLabel(range, "last 20 recorded")} — computed by Threadly)`,
+    `EXPENSES (${scopeLabel(range, "last 20 recorded")} — computed by Ventage)`,
     `- ${usd(spent)} total across ${expenses.length} expenses`,
     "",
     "RECENT ITEMS",
@@ -301,7 +301,7 @@ async function buildInventory(
   if (includeUnsold) {
     const oldest = await fetchOldestUnsold(client, 5);
     const sections = [
-      "OLDEST UNSOLD ITEMS (computed by Threadly — days held from acquired_date)",
+      "OLDEST UNSOLD ITEMS (computed by Ventage — days held from acquired_date)",
       oldest.length
         ? oldest
             .map(
@@ -327,7 +327,7 @@ async function buildInventory(
   ]);
   return {
     context: [
-      "INVENTORY (computed by Threadly)",
+      "INVENTORY (computed by Ventage)",
       `- ${total} items total, ${listed} currently listed`,
       "",
       items.length ? items.map(itemLine).join("\n") : "- No items yet.",
@@ -367,7 +367,7 @@ async function buildFinancials(
 
   return {
     context: [
-      `FINANCIALS (${scopeLabel(range, "recent records")} — computed by Threadly)`,
+      `FINANCIALS (${scopeLabel(range, "recent records")} — computed by Ventage)`,
       `- ${sales.length} sales in view — revenue ${usd(revenue)}`,
       `- Marketplace fees ${usd(fees)} · shipping ${usd(shipping)}`,
       `- Profit after cost of goods ${usd(profit)}`,
@@ -397,7 +397,7 @@ async function buildExpenses(
 
   return {
     context: [
-      `EXPENSES (${scopeLabel(range, "recent records")} — computed by Threadly)`,
+      `EXPENSES (${scopeLabel(range, "recent records")} — computed by Ventage)`,
       `- ${usd(total)} total across ${expenses.length} expenses in view`,
       "",
       "BY CATEGORY",
@@ -433,13 +433,13 @@ async function buildMarketplaces(
 
   return {
     context: [
-      `MARKETPLACE ACTIVITY (${scopeLabel(range, "recent sales")} — computed by Threadly)`,
+      `MARKETPLACE ACTIVITY (${scopeLabel(range, "recent sales")} — computed by Ventage)`,
       `- Filtering: ${range ? `${range.start} → ${range.end}` : "no date filter — latest records"}`,
       top.length
         ? top.map(([m, v], n) => `${n + 1}. ${m} — ${v.count} sale${v.count === 1 ? "" : "s"}, ${usd(v.revenue)}`).join("\n")
         : "- No marketplace sales recorded yet.",
       "",
-      "CONNECTION STATUS (tracked in Threadly — not live API integrations)",
+      "CONNECTION STATUS (tracked in Ventage — not live API integrations)",
       [...connStatus.entries()]
         .map(([m, s]) => `- ${m}: ${s}`)
         .join("\n") || "- No marketplace connections set up.",

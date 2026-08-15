@@ -88,7 +88,7 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
 }
 
 /**
- * Ask Threadly — bring-your-own-key support.
+ * Ask Ventage — bring-your-own-key support.
  *
  * The user's OpenAI key lives in the `ai` jsonb column of their own
  * app_settings row (RLS-scoped to owner_id = auth.uid()). The server reads
@@ -118,7 +118,7 @@ export async function saveAiKey(openaiKey: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
-/** Remove the user's own key (Ask Threadly then falls back to the server key, if any). */
+/** Remove the user's own key (Ask Ventage then falls back to the server key, if any). */
 export async function clearAiKey(): Promise<void> {
   const client = db();
   const ownerId = await requireUserId();

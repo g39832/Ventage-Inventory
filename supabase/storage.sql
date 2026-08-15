@@ -1,5 +1,5 @@
 -- ============================================================
--- Threadly — Phase 3: Supabase Storage
+-- Ventage — Phase 3: Supabase Storage
 -- Run this in the Supabase SQL editor. Idempotent: safe to re-run.
 --
 -- Creates two PUBLIC buckets:

@@ -1,9 +1,9 @@
 -- ============================================================
--- Threadly — Phase 2 demo seed (development only)
+-- Ventage — Phase 2 demo seed (development only)
 -- Run AFTER schema.sql. Uses relative dates (NOW() - N days)
 -- so the demo always looks current, no matter when it's run.
 --
--- WARNING: This truncates the Threadly data tables. Run only on
+-- WARNING: This truncates the Ventage data tables. Run only on
 -- a fresh database or when you want to reset to demo data.
 --
 -- NOTE: All rows here are owner-less (owner_id = NULL), so RLS

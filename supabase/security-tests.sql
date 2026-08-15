@@ -1,5 +1,5 @@
 -- ============================================================
--- Threadly — Phase 2 RLS security test
+-- Ventage — Phase 2 RLS security test
 -- Run this in the Supabase SQL editor (as postgres) AFTER
 -- schema.sql. It simulates two signed-in users by setting the
 -- JWT claim (`sub`) and switching to the `authenticated` role,

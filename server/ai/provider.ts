@@ -13,7 +13,7 @@ export interface AiTurn {
 }
 
 export interface AiRequest {
-  /** Threadly-computed context (authoritative numbers, only relevant data). */
+  /** Ventage-computed context (authoritative numbers, only relevant data). */
   context: string;
   question: string;
   history?: AiTurn[];
@@ -29,6 +29,6 @@ export interface AiProvider {
   readonly id: string;
   /** True when this provider has the credentials it needs to run. */
   configured(): boolean;
-  /** Generate an answer for a user question given Threadly-computed context. */
+  /** Generate an answer for a user question given Ventage-computed context. */
   generateAnswer(request: AiRequest): Promise<string>;
 }

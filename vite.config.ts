@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   server: {
-    // Dev only: forward AI requests to the local Threadly server (npm run dev:server).
+    // Dev only: forward AI requests to the local Ventage server (npm run dev:server).
     proxy: {
       "/api": {
         target: "http://localhost:8787",

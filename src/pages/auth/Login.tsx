@@ -68,10 +68,10 @@ export default function Login() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your Threadly shop."
+      subtitle="Sign in to your Ventage shop."
       footer={
         <>
-          New to Threadly?{" "}
+          New to Ventage?{" "}
           <Link to="/signup" className="font-medium text-primary hover:underline">
             Create an account
           </Link>

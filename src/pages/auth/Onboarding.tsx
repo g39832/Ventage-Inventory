@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { ArrowRight, PackageOpen, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ThreadlyMark } from "@/pages/auth/AuthLayout";
+import { VentageMark } from "@/pages/auth/AuthLayout";
 import { useAuth } from "@/lib/auth-provider";
 import { emptyOnboarding, seedDemoData } from "@/lib/db/demo";
 
@@ -44,12 +44,12 @@ export default function Onboarding() {
     <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-6 py-10">
       <div className="w-full max-w-2xl animate-fade-up">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <ThreadlyMark className="size-12" />
+          <VentageMark className="size-12" />
           <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome to Threadly{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}
+            Welcome to Ventage{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}
           </h1>
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-            Your account is ready. Start with a pre-filled demo shop so you can see how Threadly
+            Your account is ready. Start with a pre-filled demo shop so you can see how Ventage
             works, or begin with a clean slate.
           </p>
         </div>

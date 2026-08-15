@@ -136,7 +136,7 @@ function buildReport(
       ["Total orders", inSales.length],
       ["Average sale", MONEY(inSales.length ? gross / inSales.length : 0)],
     ];
-    return { title: `Monthly P&L — ${label}`, filename: `threadly-pnl-${month}.csv`, rows };
+    return { title: `Monthly P&L — ${label}`, filename: `ventage-pnl-${month}.csv`, rows };
   }
 
   if (type === "pnl-quarterly") {
@@ -159,7 +159,7 @@ function buildReport(
       ["Category", "Revenue (USD)"],
       ...byCat.map((c) => [c.category, MONEY(c.value)]),
     ];
-    return { title: `Quarterly summary — ${label}`, filename: `threadly-quarterly-${month}.csv`, rows };
+    return { title: `Quarterly summary — ${label}`, filename: `ventage-quarterly-${month}.csv`, rows };
   }
 
   if (type === "yearly") {
@@ -182,7 +182,7 @@ function buildReport(
       ...monthly.map((m) => [m.month, MONEY(m.revenue), MONEY(m.fees), MONEY(m.shipping), MONEY(m.expenses), MONEY(m.profit)]),
       ["Total", MONEY(gross), MONEY(fees), MONEY(shipping), MONEY(expTotal), MONEY(profit)],
     ];
-    return { title: `Yearly report — ${year}`, filename: `threadly-yearly-${year}.csv`, rows };
+    return { title: `Yearly report — ${year}`, filename: `ventage-yearly-${year}.csv`, rows };
   }
 
   if (type === "tax") {
@@ -202,7 +202,7 @@ function buildReport(
       [],
       ["Note", "Estimates only — confirm deductions with a tax professional."],
     ];
-    return { title: `Tax summary — ${month.slice(0, 4)}`, filename: `threadly-tax-${month.slice(0, 4)}.csv`, rows };
+    return { title: `Tax summary — ${month.slice(0, 4)}`, filename: `ventage-tax-${month.slice(0, 4)}.csv`, rows };
   }
 
   if (type === "valuation") {
@@ -230,7 +230,7 @@ function buildReport(
         MONEY(sumToNum(active.map((i) => i.listingPrice - i.purchasePrice))),
       ],
     ];
-    return { title: `Inventory valuation — ${label}`, filename: "threadly-inventory-valuation.csv", rows };
+    return { title: `Inventory valuation — ${label}`, filename: "ventage-inventory-valuation.csv", rows };
   }
 
   // top-sellers — join sold items with their sale records for true fee math.
@@ -272,7 +272,7 @@ function buildReport(
       MONEY(i.profit),
     ]),
   ];
-  return { title: "Top sellers (by profit)", filename: "threadly-top-sellers.csv", rows };
+  return { title: "Top sellers (by profit)", filename: "ventage-top-sellers.csv", rows };
 }
 
 export default function Reports() {

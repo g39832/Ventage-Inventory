@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { askThreadly } from "@/lib/ai";
+import { askVentage } from "@/lib/ai";
 import { useData } from "@/lib/store";
 import type { Item } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -88,7 +88,7 @@ export function ImproveListingDialog({
     setError(null);
     setGenerating(action.id);
     try {
-      const result = await askThreadly({
+      const result = await askVentage({
         message: action.prompt,
         itemId: item.id,
       });
@@ -126,7 +126,7 @@ export function ImproveListingDialog({
         <DialogHeader>
           <DialogTitle>Improve listing</DialogTitle>
           <DialogDescription>
-            Ask Threadly drafts copy from this item's details. Review and edit
+            Ask Ventage drafts copy from this item's details. Review and edit
             before saving — nothing changes until you hit Save.
           </DialogDescription>
         </DialogHeader>

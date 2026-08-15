@@ -124,12 +124,12 @@ async function createPolicy(
 
 const DEFAULT_POLICIES: Record<PolicyType, Record<string, unknown>> = {
   payment: {
-    name: "Threadly Managed Payments",
+    name: "Ventage Managed Payments",
     marketplaceId: EBAY_MARKETPLACE_ID,
     paymentMethods: [{ paymentMethodType: "ESCROW" }],
   },
   return: {
-    name: "Threadly 30-Day Returns",
+    name: "Ventage 30-Day Returns",
     marketplaceId: EBAY_MARKETPLACE_ID,
     returnPolicyInfo: {
       returnsAccepted: true,
@@ -140,7 +140,7 @@ const DEFAULT_POLICIES: Record<PolicyType, Record<string, unknown>> = {
     },
   },
   fulfillment: {
-    name: "Threadly USPS Priority",
+    name: "Ventage USPS Priority",
     marketplaceId: EBAY_MARKETPLACE_ID,
     handlingTime: { value: 2, unit: "DAY" },
     shippingOptions: [

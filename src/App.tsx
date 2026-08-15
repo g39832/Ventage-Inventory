@@ -6,14 +6,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AuthProvider, useAuth } from "@/lib/auth-provider";
 import { DataProvider, useData } from "@/lib/store";
 import { isSupabaseConfigured } from "@/lib/db/client";
-import { ThreadlyMark } from "@/pages/auth/AuthLayout";
+import { VentageMark } from "@/pages/auth/AuthLayout";
 import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
 import Onboarding from "@/pages/auth/Onboarding";
 import Dashboard from "@/pages/Dashboard";
-import AskThreadly from "@/pages/AskThreadly";
+import AskVentage from "@/pages/AskVentage";
 import Inventory from "@/pages/Inventory";
 import InventoryDetails from "@/pages/InventoryDetails";
 import AddInventory from "@/pages/AddInventory";
@@ -32,9 +32,9 @@ function SetupRequired() {
       <Card className="w-full max-w-lg">
         <CardContent className="space-y-4 pt-6">
           <div>
-            <h1 className="text-lg font-semibold tracking-tight">Connect Threadly to Supabase</h1>
+            <h1 className="text-lg font-semibold tracking-tight">Connect Ventage to Supabase</h1>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Threadly is built on Supabase and needs your project's public URL and anon key
+              Ventage is built on Supabase and needs your project's public URL and anon key
               before it can load your data.
             </p>
           </div>
@@ -68,7 +68,7 @@ function SetupRequired() {
 function AppLoading({ label }: { label: string }) {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background">
-      <ThreadlyMark className="animate-pulse" />
+      <VentageMark className="animate-pulse" />
       <p className="text-sm text-muted-foreground">{label}</p>
     </div>
   );
@@ -148,7 +148,7 @@ function ProtectedRoutes() {
           <Route element={<RequireOnboarded />}>
             <Route element={<AppShell />}>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/ask" element={<AskThreadly />} />
+              <Route path="/ask" element={<AskVentage />} />
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/inventory/new" element={<AddInventory />} />
               <Route path="/inventory/:id" element={<InventoryDetails />} />

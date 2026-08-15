@@ -20,7 +20,7 @@ const NAV = [
     group: "Overview",
     items: [
       { label: "Dashboard", to: "/", icon: LayoutDashboard },
-      { label: "Ask Threadly", to: "/ask", icon: Sparkles },
+      { label: "Ask Ventage", to: "/ask", icon: Sparkles },
     ],
   },
   {
@@ -59,7 +59,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
           <Shirt className="size-4" />
         </span>
-        <span className="text-[17px] font-semibold tracking-tight">Threadly</span>
+        <span className="text-[17px] font-semibold tracking-tight">Ventage</span>
       </Link>
 
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 pt-2">
