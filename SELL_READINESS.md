@@ -1,4 +1,4 @@
-# Ventage — Sell-Readiness & Hands-Off Operations Plan
+# Regroove — Sell-Readiness & Hands-Off Operations Plan
 
 > Prepared for the seller. Goal: make the app (1) complete enough to sell with a clear
 > conscience, and (2) run for years with **zero code updates** from the seller after handover.
@@ -27,15 +27,15 @@
 - [ ] Document the backup procedure (Supabase Pro daily backups + manual export)
 - [ ] Secret scan of the repo before handover
 
-**Decisions I still need from you:** brand name (sell as "Ventage" or make it renamable), sell code+docs vs turnkey, support email/website. (Marketplace integrations are settled: eBay is real, the other five stay manual because those platforms have no third-party APIs.)
+**Decisions I still need from you:** brand name (sell as "Regroove" or make it renamable), sell code+docs vs turnkey, support email/website. (Marketplace integrations are settled: eBay is real, the other five stay manual because those platforms have no third-party APIs.)
 
 ---
 
 ## 0. Current state in one paragraph
 
-Ventage is a genuinely solid, multi-user inventory app for vintage resellers: React + Vite
+Regroove is a genuinely solid, multi-user inventory app for vintage resellers: React + Vite
 frontend, Supabase (Postgres, auth, RLS-scoped data, photo storage), and a small Express
-server that powers "Ask Ventage" AI (bring-your-own-OpenAI-key or a server key, with
+server that powers "Ask Regroove" AI (bring-your-own-OpenAI-key or a server key, with
 rate limiting). Auth, RLS, storage, and onboarding are done and security-tested.
 
 **The catch:** several pages are explicitly unfinished. The Reports page shows "Coming in
@@ -66,7 +66,7 @@ That's the first thing to fix before a sale.
 |---|------|----------------|
 | 6 | **README.md** (doesn't exist) | Buyers judge from the README. Needs: what it is, screenshot section, feature list, tech stack, 10-minute setup, architecture diagram (text), file map, FAQ. |
 | 7 | **LICENSE** (doesn't exist) | A sale needs explicit terms. At minimum a "Commercial License — single buyer, no resale of source" text file. Consult a lawyer for real money sales; for marketplace sales, follow the platform's license template. |
-| 8 | **Branding / white-label decision** | "Ventage" is hardcoded in ~100 places (title, sidebar, logo, auth pages, error strings, even "ask the developer" copy). Decide: sell as "Ventage" (fine for a marketplace listing) **or** make name/logo/support-email configurable via env vars (~1 day). At minimum, remove "ask the developer" strings and point support at a neutral email/URL. |
+| 8 | **Branding / white-label decision** | "Regroove" is hardcoded in ~100 places (title, sidebar, logo, auth pages, error strings, even "ask the developer" copy). Decide: sell as "Regroove" (fine for a marketplace listing) **or** make name/logo/support-email configurable via env vars (~1 day). At minimum, remove "ask the developer" strings and point support at a neutral email/URL. |
 | 9 | **Terms of Service + Privacy Policy pages** | The app collects emails, passwords, and user data → legally required in most markets. Add static routes + links on the login/signup pages. |
 | 10 | **Buyer handover docs** | A `BUYER_SETUP.md` that takes a buyer from zero to production in ~30 minutes, including every account they must create and every bill they'll pay (see Part 3). |
 
@@ -100,7 +100,7 @@ you look bad.
   hack; the endpoint already exists at `server/index.ts`.)
 - The render.yaml already pins Node 22 and uses `npm ci` — good, deterministic builds.
 
-### 3c. OpenAI ("Ask Ventage")
+### 3c. OpenAI ("Ask Regroove")
 
 - Pay-per-use; the buyer already has two options: bring their own key per user, or set
   one server key. Rate limit (30 req/user/hour default) caps the bill. **Document the
@@ -112,7 +112,7 @@ you look bad.
   so installs are identical forever.
 - The frontend is a static build + one tiny Express server. Nothing in it depends on the
   seller.
-- Ask Ventage is a provider *plugin* (`server/ai/`) — if OpenAI ever breaks, it's one
+- Ask Regroove is a provider *plugin* (`server/ai/`) — if OpenAI ever breaks, it's one
   file, and the buyer can also just disable AI entirely; the app works fine without it.
 - **The only things that can ever force a change:** a security vulnerability in a pinned
   dependency, a platform deprecation (Render/Supabase changing terms), or a new feature.
@@ -176,7 +176,7 @@ your answers and I'll proceed.
 
 *Decisions I need from you before the sale-readiness "done" checklist is locked:*
 
-1. Selling as **"Ventage"** or do you want the buyer able to **rename** it (env-config)?
+1. Selling as **"Regroove"** or do you want the buyer able to **rename** it (env-config)?
 2. Do you want me to build a **real marketplace integration** (eBay/Discogs) or market
    the app honestly as manual-tracking?
 3. Do you plan to sell **your existing running instance** (hand over the Supabase + Render

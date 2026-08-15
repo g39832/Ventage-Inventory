@@ -1,6 +1,6 @@
-# Ventage — Pre-Sale QA Checklist
+# Regroove — Pre-Sale QA Checklist
 
-> Run this by hand before handing Ventage to a buyer. It's the one-page proof
+> Run this by hand before handing Regroove to a buyer. It's the one-page proof
 > that every screen works and every security guarantee holds. Automated checks
 > (`npm run typecheck`, `npm run build`, `npm run test:smoke`,
 > `supabase/security-tests.sql`) cover the parts they can; this covers the rest.
@@ -67,7 +67,7 @@
 - [ ] Settings → Data & export: inventory, sales, and expenses CSVs download
 - [ ] An item named `=HYPERLINK("...")` exports as text, not a live formula
 
-## 8. Ask Ventage (AI)
+## 8. Ask Regroove (AI)
 
 - [ ] With a server key set: questions answer from the user's own data
 - [ ] Without any key: a friendly "not set up" message (no crash)
@@ -104,14 +104,14 @@
 - [ ] Dashboard/Inventory/Analytics load without noticeable jank on a normal dataset
 - [ ] No obvious broken images, dead links, or console errors while clicking through
 - [ ] Mobile (or a narrow window) doesn't break the sidebar/top bar
-- [ ] The app name is **Ventage** everywhere (no leftover "Ventage")
+- [ ] The app name is **Regroove** everywhere (no leftover "Ventage" strings)
 
 ## 13. Final sign-off
 
 - [ ] README, LICENSE, BUYER_HANDOVER.md, and the delivery archive all exist and are current
 - [ ] Support email is set in `src/lib/brand.ts` (not `support@example.com`)
 - [ ] Buyer name/date fields in LICENSE are filled in
-- [ ] The `release/ventage-delivery.tar.gz` archive was regenerated from the latest commit
+- [ ] The `release/regroove-delivery.tar.gz` archive was regenerated from the latest commit
 
 **All boxes checked = ready to hand over.** Anything unchecked is either a bug
 to fix or a decision (pricing, support email, eBay keys) still needed from you.

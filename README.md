@@ -1,8 +1,10 @@
-# Ventage
+# Regroove
+
+> **Naming note:** this product was previously branded **Ventage** and has been renamed **Regroove**. A few legacy infrastructure identifiers (the GitHub repo `Ventage-Inventory`, the Render service `ventage`, and the Supabase project) still carry the old name — these are hosting references, not the product name.
 
 **Inventory, accounting, and listing management for vintage resellers — with real eBay integration and an AI assistant.**
 
-Ventage is a multi-user web app that gives a reselling shop one source of truth: every piece of inventory, every sale, every expense, and every marketplace connection in one place. It runs on Supabase (database, auth, photo storage) with a small Express server that powers the AI assistant and the eBay integration.
+Regroove is a multi-user web app that gives a reselling shop one source of truth: every piece of inventory, every sale, every expense, and every marketplace connection in one place. It runs on Supabase (database, auth, photo storage) with a small Express server that powers the AI assistant and the eBay integration.
 
 ---
 
@@ -15,7 +17,7 @@ Ventage is a multi-user web app that gives a reselling shop one source of truth:
 | **Sales & expenses** | Log sales with fees and shipping to get real payout and profit. Categorized expenses, item-level expenses. |
 | **Analytics & reports** | Dashboard KPIs, revenue/profit charts, category and marketplace breakdowns, plus 6 downloadable reports (CSV and print-to-PDF): Monthly P&L, quarterly, yearly, tax summary, inventory valuation, top sellers. |
 | **Marketplaces** | **eBay is a real integration** — connect your eBay account and publish items, end listings, and sync live status + recent orders through eBay's official API. Depop, Poshmark, Vinted, Mercari, and Facebook Marketplace don't offer third-party selling APIs, so they're honest manual tracking. |
-| **Ask Ventage (AI)** | A chat assistant that answers questions from your own data and drafts listing copy. Bring-your-own OpenAI key per user, or set one server-wide key. Rate-limited by default. |
+| **Ask Regroove (AI)** | A chat assistant that answers questions from your own data and drafts listing copy. Bring-your-own OpenAI key per user, or set one server-wide key. Rate-limited by default. |
 | **Multi-user & secure** | Every user has isolated data enforced by Supabase Row Level Security. No service-role key is used anywhere; the server derives identity from the verified Supabase session. |
 
 ## Tech stack
@@ -32,7 +34,7 @@ Browser (React SPA)
    │  Supabase JS (anon key) ──────────────► Supabase (Postgres + RLS + Auth + Storage)
    │
    └── /api ──► Express server (server/)
-                  ├─ /api/ai/ask            → Ask Ventage (OpenAI, server-side key only)
+                  ├─ /api/ai/ask            → Ask Regroove (OpenAI, server-side key only)
                   └─ /api/marketplaces/ebay → eBay OAuth + Sell API (tokens stored per-user, server-side)
 ```
 
@@ -48,7 +50,7 @@ src/                    React app
   lib/                  domain logic, Supabase data layer, store, AI/eBay clients
   pages/                one file per route (dashboard, inventory, sales, ...)
 server/                 Express server
-  ai/                   Ask Ventage provider + context builders + rate limiting
+  ai/                   Ask Regroove provider + context builders + rate limiting
   marketplaces/ebay/    eBay OAuth, tokens, Sell API calls, routes
 supabase/               SQL: schema, RLS, storage, eBay tokens, seed, security tests
   SETUP.md              Supabase setup walkthrough
@@ -82,7 +84,7 @@ Production: `npm run build` then `npm run start` — the Express server serves b
 
 ## Connecting eBay (the easy path)
 
-eBay is the one marketplace with a real API, and Ventage makes it a two-part setup:
+eBay is the one marketplace with a real API, and Regroove makes it a two-part setup:
 
 **Owner side — one time, ~15 minutes** (see `EBAY_SETUP.md` for the full click-by-click):
 1. Create a free eBay developer account → create a **production** application → copy its **Client ID** and **Client Secret**.
@@ -105,7 +107,7 @@ eBay is the one marketplace with a real API, and Ventage makes it a two-part set
 
 ## Security & cost controls
 
-Ventage is multi-tenant by design, with defense-in-depth so one user can never
+Regroove is multi-tenant by design, with defense-in-depth so one user can never
 reach another user's data or run up the owner's bill:
 
 - **Data isolation** — every table is Row-Level-Security scoped to `auth.uid()`;
@@ -129,7 +131,7 @@ reach another user's data or run up the owner's bill:
 
 Recommended one-time dashboard settings for production: keep **email
 confirmation on** in Supabase (blocks bot signups), set a **storage limit**
-under Supabase → Storage, and set an **OpenAI hard limit** so Ask Ventage can
+under Supabase → Storage, and set an **OpenAI hard limit** so Ask Regroove can
 never exceed a monthly budget.
 
 ## Support

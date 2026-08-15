@@ -1,4 +1,4 @@
-# Ventage — Phase 2: Authentication & Multi-User Security
+# Regroove — Phase 2: Authentication & Multi-User Security
 
 This file covers the manual configuration you need to complete in Supabase (and Google)
 for authentication to work. The code side is already done.

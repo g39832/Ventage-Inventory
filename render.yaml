@@ -1,6 +1,6 @@
-# Render blueprint for Ventage.
+# Render blueprint for Regroove.
 # A Node web service: it builds the frontend, serves it, AND runs the
-# Ask Ventage API (server/). Use via "New → Blueprint", or create a
+# Ask Regroove API (server/). Use via "New → Blueprint", or create a
 # Web Service manually with:
 #   build command:   npm run build
 #   start command:   npm run start

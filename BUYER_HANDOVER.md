@@ -1,15 +1,19 @@
-# Ventage — Buyer Handover & Managed Hosting Agreement
+# Regroove — Buyer Handover & Managed Hosting Agreement
 
-> This document accompanies the sale of Ventage under the terms of `LICENSE`.
+> This document accompanies the sale of Regroove under the terms of `LICENSE`.
 > Fill in the bracketed values before handing it over, and have both parties
 > review the LICENSE together with counsel.
+>
+> **Naming note:** Regroove was renamed from **Ventage**. Legacy hosting names
+> (GitHub repo, Render service, Supabase project) may still say "Ventage" — they
+> are infrastructure identifiers, not the product name.
 
 ## 1. What this deal includes
 
 | Item | You (Buyer) receive |
 |---|---|
-| **Source code** | The complete Ventage codebase (frontend, server, SQL) plus all docs, delivered as `release/ventage-delivery.tar.gz` or a git repository. |
-| **License** | A perpetual, non-transferable license to use and modify Ventage for your own business (see `LICENSE`). You may not resell or redistribute the source. |
+| **Source code** | The complete Regroove codebase (frontend, server, SQL) plus all docs, delivered as `release/regroove-delivery.tar.gz` or a git repository. |
+| **License** | A perpetual, non-transferable license to use and modify Regroove for your own business (see `LICENSE`). You may not resell or redistribute the source. |
 | **A running app** | A hosted instance operated by the Seller — your team just signs in. |
 | **Support** | Help from the Seller as described in Section 6. |
 
@@ -23,7 +27,7 @@ You own your **data**. You own the **code** under the license. The Seller
 | **Render** | Hosts the web app + API; deploys new code | Seller |
 | **Supabase** | Database, user accounts, photo storage, backups | Seller |
 | **eBay developer app** | The API keys that power the eBay integration | Seller |
-| **OpenAI key** *(optional)* | Powers Ask Ventage if no user brings their own key | Seller |
+| **OpenAI key** *(optional)* | Powers Ask Regroove if no user brings their own key | Seller |
 
 The browser never holds any of these secrets. You do not need to create or
 manage any of these accounts to use the app.
@@ -40,11 +44,11 @@ manage any of these accounts to use the app.
    item, use **Marketplace status → Publish to eBay** (the item needs at least
    one photo), then **Sync now** to pull live status and recent orders.
 
-## 4. AI (Ask Ventage)
+## 4. AI (Ask Regroove)
 
 Two options, per user:
 
-- **Bring your own OpenAI key** — Settings → Ask Ventage. You pay OpenAI
+- **Bring your own OpenAI key** — Settings → Ask Regroove. You pay OpenAI
   directly, per use; nothing is billed through the Seller.
 - **Use the Seller's key** — if the Seller has configured one, it's used as a
   fallback. Usage is rate-limited per user and per instance to keep costs
@@ -102,7 +106,7 @@ eBay developer app and OpenAI key. Every step is documented.
 
 | Question | Where |
 |---|---|
-| What is Ventage / tech stack | `README.md` |
+| What is Regroove / tech stack | `README.md` |
 | Set up Supabase from scratch | `supabase/SETUP.md` |
 | Google sign-in + security model | `supabase/AUTH_SETUP.md` |
 | Enable the eBay integration (owner side) | `EBAY_SETUP.md` |

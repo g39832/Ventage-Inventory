@@ -1,4 +1,4 @@
-# Ventage — eBay Integration Setup
+# Regroove — eBay Integration Setup
 
 This turns on the **real eBay integration**: users connect their eBay account, publish
 items straight from inventory, and pull their live listings and recent orders.
@@ -8,7 +8,7 @@ items straight from inventory, and pull their live listings and recent orders.
 - The browser never touches eBay. A user clicks "Connect with eBay" → approves on eBay →
   the app stores their OAuth tokens (server-side, per-user) → "Publish to eBay" sends the
   item's details + photos to eBay's Sell API.
-- It's the only marketplace in Ventage with a real API. Depop, Poshmark, Vinted, Mercari,
+- It's the only marketplace in Regroove with a real API. Depop, Poshmark, Vinted, Mercari,
   and Facebook Marketplace don't offer third-party listing APIs, so they stay manual
   tracking by design.
 
@@ -25,7 +25,7 @@ items straight from inventory, and pull their live listings and recent orders.
 
 1. Go to [developer.ebay.com](https://developer.ebay.com) and sign in with an eBay account.
 2. **Your apps → Create an application**.
-   - *Application name:* anything (e.g. "Ventage Inventory").
+   - *Application name:* anything (e.g. "Regroove Inventory").
    - *Application description:* anything.
    - *API to use:* **Sell APIs** (this grants the listing/policy/order scopes).
 3. After creation, open the app → **Keys** tab:
@@ -39,7 +39,7 @@ items straight from inventory, and pull their live listings and recent orders.
    description and submit. Approval is usually quick; until approved, only sandbox works.
 
 > The app needs **User Token** (OAuth authorization code grant) access — not Client
-> Credentials. The connect button in Ventage handles the whole flow.
+> Credentials. The connect button in Regroove handles the whole flow.
 
 ## 2. Set the environment variables
 
@@ -72,7 +72,7 @@ The integration stores per-user tokens in a new `ebay_tokens` table:
 1. In `developer.ebay.com → Your apps`, create a **sandbox** test app and use its keys +
    `EBAY_SANDBOX=true` in your env.
 2. Create a sandbox test user (Sandbox → Test accounts) and sign in as them on eBay.
-3. Sign into Ventage → **Marketplace connections** → eBay → **Connect with eBay**.
+3. Sign into Regroove → **Marketplace connections** → eBay → **Connect with eBay**.
 4. Publish an item from its **Marketplace status** tab (the item needs at least one photo).
 5. Confirm the listing appears in the eBay sandbox seller hub, then run **Sync now** and
    check the live count updates.
@@ -81,7 +81,7 @@ The integration stores per-user tokens in a new `ebay_tokens` table:
 
 ## 5. How publishing works (defaults you should know)
 
-When a user publishes an item, Ventage:
+When a user publishes an item, Regroove:
 
 - Uses the item's **SKU** as the eBay SKU (auto-generated `VN-XXXXXX` if empty).
 - Maps the app's condition text to an eBay condition (new → `NEW`, excellent → `LIKE_NEW`,
