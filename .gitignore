@@ -10,6 +10,9 @@ dist-ssr/
 server-dist/
 *.local
 
+# Delivery archives (git archive output — regenerated, not source)
+release/
+
 # Environment (secrets — never commit)
 .env
 .env.*
