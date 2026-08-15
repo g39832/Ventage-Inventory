@@ -1,7 +1,7 @@
 /**
- * Ask Ventage — frontend client.
+ * Ask Threadly — frontend client.
  *
- * The browser never talks to OpenAI directly. It posts to the Ventage
+ * The browser never talks to OpenAI directly. It posts to the Threadly
  * server (/api/ai/ask, proxied to :8787 in dev) with the user's Supabase
  * session token; the server verifies it, queries only the user's own data,
  * and returns a plain-text answer.
@@ -14,14 +14,14 @@ export interface AiTurn {
   content: string;
 }
 
-export interface AskVentageInput {
+export interface AskThreadlyInput {
   message: string;
   itemId?: string;
   /** Recent conversation turns (session-only; not stored server-side). */
   history?: AiTurn[];
 }
 
-export interface AskVentageResult {
+export interface AskThreadlyResult {
   answer: string;
   /** Item ids the answer references, so the UI can link to them. */
   relatedItemIds: string[];
@@ -37,8 +37,8 @@ export const SUGGESTED_QUESTIONS = [
   "How many items do I currently have?",
 ];
 
-/** Ask the Ventage AI server a question about the signed-in user's data. */
-export async function askVentage(input: AskVentageInput): Promise<AskVentageResult> {
+/** Ask the Threadly AI server a question about the signed-in user's data. */
+export async function askThreadly(input: AskThreadlyInput): Promise<AskThreadlyResult> {
   const client = db();
   const { data } = await client.auth.getSession();
   const token = data.session?.access_token;
@@ -60,7 +60,7 @@ export async function askVentage(input: AskVentageInput): Promise<AskVentageResu
     });
   } catch {
     throw new Error(
-      "Can't reach the AI service. Make sure the Ventage server is running (npm run dev:server)."
+      "Can't reach the AI service. Make sure the Threadly server is running (npm run dev:server)."
     );
   }
 
@@ -77,7 +77,7 @@ export async function askVentage(input: AskVentageInput): Promise<AskVentageResu
     };
   }
 
-  let message = "Ask Ventage hit a snag. Please try again.";
+  let message = "Ask Threadly hit a snag. Please try again.";
   try {
     const body = (await res.json()) as { error?: unknown };
     if (typeof body.error === "string" && body.error) message = body.error;
@@ -86,10 +86,10 @@ export async function askVentage(input: AskVentageInput): Promise<AskVentageResu
   }
   if (res.status === 401) message = "Your session has expired. Please sign in again.";
   if (res.status === 429) {
-    message = "You've used your Ask Ventage requests for this hour. Try again later.";
+    message = "You've used your Ask Threadly requests for this hour. Try again later.";
   }
   if (res.status === 503) {
-    message = "Ask Ventage isn't set up yet. Add your own OpenAI key in Settings → Ask Ventage, or ask the developer to add one.";
+    message = "Ask Threadly isn't set up yet. Add your own OpenAI key in Settings → Ask Threadly, or ask the app owner to configure one.";
   }
   throw new Error(message);
 }

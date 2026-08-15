@@ -6,14 +6,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AuthProvider, useAuth } from "@/lib/auth-provider";
 import { DataProvider, useData } from "@/lib/store";
 import { isSupabaseConfigured } from "@/lib/db/client";
-import { VentageMark } from "@/pages/auth/AuthLayout";
+import { ThreadlyMark } from "@/pages/auth/AuthLayout";
 import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
 import Onboarding from "@/pages/auth/Onboarding";
 import Dashboard from "@/pages/Dashboard";
-import AskVentage from "@/pages/AskVentage";
+import AskThreadly from "@/pages/AskThreadly";
 import Inventory from "@/pages/Inventory";
 import InventoryDetails from "@/pages/InventoryDetails";
 import AddInventory from "@/pages/AddInventory";
@@ -23,6 +23,8 @@ import Analytics from "@/pages/Analytics";
 import Marketplace from "@/pages/Marketplace";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
+import EbayCallback from "@/pages/EbayCallback";
+import { Privacy, Terms } from "@/pages/Legal";
 
 function SetupRequired() {
   return (
@@ -30,9 +32,9 @@ function SetupRequired() {
       <Card className="w-full max-w-lg">
         <CardContent className="space-y-4 pt-6">
           <div>
-            <h1 className="text-lg font-semibold tracking-tight">Connect Ventage to Supabase</h1>
+            <h1 className="text-lg font-semibold tracking-tight">Connect Threadly to Supabase</h1>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Ventage is built on Supabase and needs your project's public URL and anon key
+              Threadly is built on Supabase and needs your project's public URL and anon key
               before it can load your data.
             </p>
           </div>
@@ -66,7 +68,7 @@ function SetupRequired() {
 function AppLoading({ label }: { label: string }) {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background">
-      <VentageMark className="animate-pulse" />
+      <ThreadlyMark className="animate-pulse" />
       <p className="text-sm text-muted-foreground">{label}</p>
     </div>
   );
@@ -121,6 +123,8 @@ function PublicRoutes() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
@@ -138,10 +142,13 @@ function ProtectedRoutes() {
           <Route path="/forgot-password" element={<SignedInRedirect />} />
           <Route path="/reset-password" element={<SignedInRedirect />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/ebay/callback" element={<EbayCallback />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route element={<RequireOnboarded />}>
             <Route element={<AppShell />}>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/ask" element={<AskVentage />} />
+              <Route path="/ask" element={<AskThreadly />} />
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/inventory/new" element={<AddInventory />} />
               <Route path="/inventory/:id" element={<InventoryDetails />} />

@@ -15,7 +15,7 @@ export function checkRateLimit(userId: string, limitPerHour: number): void {
   bucket.count += 1;
   if (bucket.count > limitPerHour) {
     throw new RateLimitError(
-      "You've used your Ask Ventage requests for this hour. Try again later."
+      "You've used your Ask Threadly requests for this hour. Try again later."
     );
   }
 }

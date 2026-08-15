@@ -1,5 +1,5 @@
 -- ============================================================
--- Ventage — Phase 2 schema (auth + multi-user RLS)
+-- Threadly — Phase 2 schema (auth + multi-user RLS)
 -- Run this in the Supabase SQL editor. It is idempotent: safe to
 -- run on a fresh database OR on top of the Phase 1 schema.
 --
@@ -381,7 +381,7 @@ create table if not exists app_settings (
   profile jsonb not null default '{}'::jsonb,
   shop jsonb not null default '{}'::jsonb,
   notifications jsonb not null default '{}'::jsonb,
-  -- Bring-your-own-key for Ask Ventage: { openaiKey } stored per user.
+  -- Bring-your-own-key for Ask Threadly: { openaiKey } stored per user.
   ai jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );
@@ -415,6 +415,31 @@ drop trigger if exists app_settings_set_owner on app_settings;
 create trigger app_settings_set_owner
   before insert on app_settings
   for each row execute function public.set_owner_id();
+
+-- ------------------------------------------------------------
+-- ebay_tokens — per-user eBay OAuth tokens (server-side only)
+-- ------------------------------------------------------------
+create table if not exists ebay_tokens (
+  owner_id uuid primary key references users(id) on delete cascade,
+  -- OAuth 2.0 credentials for this user's eBay connection.
+  access_token text not null default '',
+  refresh_token text not null default '',
+  expires_at timestamptz,
+  ebay_username text,
+  -- Sell Account policy ids (created once per user, reused for listings).
+  payment_policy_id text,
+  return_policy_id text,
+  fulfillment_policy_id text,
+  -- Default eBay category id used when publishing items (15687 = Men's T-Shirts, US).
+  category_id text not null default '15687',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+drop trigger if exists ebay_tokens_set_updated_at on ebay_tokens;
+create trigger ebay_tokens_set_updated_at
+  before update on ebay_tokens
+  for each row execute function set_updated_at();
 
 -- ============================================================
 -- Row Level Security
@@ -677,6 +702,24 @@ create policy "settings_update_own" on app_settings
 
 drop policy if exists "settings_delete_own" on app_settings;
 create policy "settings_delete_own" on app_settings
+  for delete using (owner_id = auth.uid());
+
+-- ── ebay_tokens ──
+alter table ebay_tokens enable row level security;
+drop policy if exists "ebay_tokens_select_own" on ebay_tokens;
+create policy "ebay_tokens_select_own" on ebay_tokens
+  for select using (owner_id = auth.uid());
+
+drop policy if exists "ebay_tokens_insert_own" on ebay_tokens;
+create policy "ebay_tokens_insert_own" on ebay_tokens
+  for insert with check (owner_id = auth.uid());
+
+drop policy if exists "ebay_tokens_update_own" on ebay_tokens;
+create policy "ebay_tokens_update_own" on ebay_tokens
+  for update using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+
+drop policy if exists "ebay_tokens_delete_own" on ebay_tokens;
+create policy "ebay_tokens_delete_own" on ebay_tokens
   for delete using (owner_id = auth.uid());
 
 -- ============================================================

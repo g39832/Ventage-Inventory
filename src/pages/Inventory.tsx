@@ -526,8 +526,7 @@ export default function Inventory() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete “{deleteTarget?.name}”?</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the item from your inventory. It's soft-deleted, so it can
-              be restored in a future phase.
+              This removes the item from your inventory permanently.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -1,6 +1,6 @@
-# Render blueprint for Ventage.
+# Render blueprint for Threadly.
 # A Node web service: it builds the frontend, serves it, AND runs the
-# Ask Ventage API (server/). Use via "New → Blueprint", or create a
+# Ask Threadly API (server/). Use via "New → Blueprint", or create a
 # Web Service manually with:
 #   build command:   npm run build
 #   start command:   npm run start
@@ -9,9 +9,13 @@
 #   VITE_SUPABASE_URL    — https://<ref>.supabase.co          (public)
 #   VITE_SUPABASE_ANON_KEY — Supabase anon/publishable key    (public)
 #   OPENAI_API_KEY       — server-side OpenAI key             (SECRET)
+#   EBAY_CLIENT_ID       — eBay developer app client id      (SECRET)
+#   EBAY_CLIENT_SECRET   — eBay developer app secret         (SECRET)
+#   EBAY_REDIRECT_URI    — https://<your-app>/ebay/callback  (public-ish)
+#   EBAY_SANDBOX         — "true" to test against eBay's sandbox
 services:
   - type: web
-    name: ventage
+    name: threadly
     runtime: node
     plan: free
     # npm ci --include=dev: Render sets NODE_ENV=production, which makes npm
@@ -28,4 +32,12 @@ services:
       - key: VITE_SUPABASE_ANON_KEY
         sync: false
       - key: OPENAI_API_KEY
+        sync: false
+      - key: EBAY_CLIENT_ID
+        sync: false
+      - key: EBAY_CLIENT_SECRET
+        sync: false
+      - key: EBAY_REDIRECT_URI
+        sync: false
+      - key: EBAY_SANDBOX
         sync: false

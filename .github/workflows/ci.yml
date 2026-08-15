@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build:
+    name: Typecheck, build, smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Render uses --include=dev because NODE_ENV=production there; on CI the
+      # default npm ci already installs devDependencies (vite, typescript, tsx).
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Server smoke test
+        run: npm run test:smoke

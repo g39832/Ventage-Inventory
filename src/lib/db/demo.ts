@@ -366,7 +366,7 @@ export async function seedDemoData(): Promise<void> {
   // Marketplace connections
   const connections: { marketplace_id: MarketplaceId; status: string; account: string | null; sync_type: string; note: string }[] = [
     { marketplace_id: "ebay", status: "connected", account: "my.resale.shop", sync_type: "auto", note: "Listings, sales, and fees pull in automatically once integration is live." },
-    { marketplace_id: "depop", status: "connected", account: "@my.resale.shop", sync_type: "manual", note: "Listings are tracked manually until the Depop integration ships." },
+    { marketplace_id: "depop", status: "connected", account: "@my.resale.shop", sync_type: "manual", note: "Depop has no third-party API — listings are tracked manually." },
     { marketplace_id: "poshmark", status: "connected", account: "@my.resale.shop", sync_type: "manual", note: "Offers and bundles are noted in item history manually." },
     { marketplace_id: "vinted", status: "manual", account: "@my.resale.shop", sync_type: "manual", note: "Connected for tracking — prices and listings stay in sync by hand." },
     { marketplace_id: "mercari", status: "not-connected", account: null, sync_type: "manual", note: "No Mercari account connected." },

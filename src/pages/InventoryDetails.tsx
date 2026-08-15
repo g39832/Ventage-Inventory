@@ -119,6 +119,9 @@ export default function InventoryDetails() {
     addNote,
     addTimelineNote,
     setListingStatus,
+    ebayConnected,
+    publishToEbay,
+    unlistFromEbay,
     addItemExpense,
     photosByItem,
     addPhoto,
@@ -334,6 +337,38 @@ export default function InventoryDetails() {
   const toggleListing = (m: MarketplaceId) => {
     const listing = item.marketplaces[m];
     const isLive = listing?.status === "live";
+
+    // eBay goes through the real API when the account is connected.
+    if (m === "ebay" && ebayConnected) {
+      if (isLive) {
+        unlistFromEbay(item)
+          .then(() => {
+            toast("Ended on eBay", {
+              description: `${item.name} was unlisted from eBay.`,
+            });
+          })
+          .catch((e) =>
+            toast.error("Couldn't unlist from eBay", {
+              description: e instanceof Error ? e.message : "Please try again.",
+            })
+          );
+      } else {
+        publishToEbay(item)
+          .then((updated) => {
+            const listingId = updated.marketplaces.ebay?.listingId;
+            toast("Published to eBay", {
+              description: `${item.name} is now live at ${usd(item.listingPrice)}${listingId ? ` · ${listingId}` : ""}.`,
+            });
+          })
+          .catch((e) =>
+            toast.error("Couldn't publish to eBay", {
+              description: e instanceof Error ? e.message : "Please try again.",
+            })
+          );
+      }
+      return;
+    }
+
     setListingStatus(item, m, isLive ? "none" : "live")
       .then(() => {
         toast(isLive ? `Removed from ${MARKETPLACE_META[m].name}` : `Listed on ${MARKETPLACE_META[m].name}`, {
@@ -745,7 +780,9 @@ export default function InventoryDetails() {
                               ? `Live at ${usd(listing?.price ?? item.listingPrice)}${listing?.listingId ? ` · ${listing.listingId}` : ""}`
                               : state === "sold"
                                 ? `Sold at ${usd(listing?.price ?? item.listingPrice)}`
-                                : "Not listed here"}
+                                : m === "ebay" && ebayConnected
+                                  ? "Not on eBay yet — publish it with the button"
+                                  : "Not listed here"}
                           </p>
                         </div>
                       </div>
@@ -1160,8 +1197,7 @@ export default function InventoryDetails() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete “{item.name}”?</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the item from inventory. It's soft-deleted, so it can
-              be restored in a future phase.
+              This removes the item from inventory permanently.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

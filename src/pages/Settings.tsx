@@ -28,6 +28,9 @@ import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/common/PageHeader";
 import { uploadAvatar } from "@/lib/db/photos";
 import { useData } from "@/lib/store";
+import { downloadCsv } from "@/lib/csv";
+import { SUPPORT_EMAIL } from "@/lib/brand";
+import { MARKETPLACE_META } from "@/lib/mock/marketplaces";
 import { useAuth } from "@/lib/auth-provider";
 import { clearAiKey, hasAiKey, saveAiKey, type AppSettings } from "@/lib/db/settings";
 import { MARKETPLACE_IDS } from "@/lib/types";
@@ -52,8 +55,31 @@ function Field({
   );
 }
 
+function ExportRow({
+  label,
+  desc,
+  onClick,
+}: {
+  label: string;
+  desc: string;
+  onClick: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-lg border p-3.5">
+      <div>
+        <p className="text-[13.5px] font-medium">{label}</p>
+        <p className="text-[12.5px] text-muted-foreground">{desc}</p>
+      </div>
+      <Button variant="outline" size="sm" onClick={onClick}>
+        <Download className="size-3.5" />
+        Export
+      </Button>
+    </div>
+  );
+}
+
 export default function Settings() {
-  const { settings, saveSettings } = useData();
+  const { settings, saveSettings, items, sales, expenses } = useData();
   const { user, updateProfile } = useAuth();
   const [tab, setTab] = useState("profile");
   const [form, setForm] = useState<AppSettings>(settings);
@@ -62,7 +88,7 @@ export default function Settings() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  // Ask Ventage — bring-your-own-key state.
+  // Ask Threadly — bring-your-own-key state.
   const [keySaved, setKeySaved] = useState(false);
   const [keyInput, setKeyInput] = useState("");
   const [keySaving, setKeySaving] = useState(false);
@@ -89,7 +115,7 @@ export default function Settings() {
         setKeySaved(true);
         setKeyInput("");
         toast("AI key saved", {
-          description: "Ask Ventage will use your own key from now on.",
+          description: "Ask Threadly will use your own key from now on.",
         });
       })
       .catch(() =>
@@ -105,7 +131,7 @@ export default function Settings() {
     clearAiKey()
       .then(() => {
         setKeySaved(false);
-        toast("AI key removed", { description: "Ask Ventage will fall back to the server key, if one is set." });
+        toast("AI key removed", { description: "Ask Threadly will fall back to the server key, if one is set." });
       })
       .catch(() =>
         toast.error("Couldn't remove your AI key", { description: "Please try again." })
@@ -215,7 +241,7 @@ export default function Settings() {
             <Bell className="size-4" /> Notifications
           </TabsTrigger>
           <TabsTrigger value="ai" className="justify-start gap-2 data-[state=active]:bg-accent/70">
-            <Sparkles className="size-4" /> Ask Ventage
+            <Sparkles className="size-4" /> Ask Threadly
           </TabsTrigger>
           <TabsTrigger value="data" className="justify-start gap-2 data-[state=active]:bg-accent/70">
             <Building2 className="size-4" /> Data & export
@@ -439,7 +465,7 @@ export default function Settings() {
           <TabsContent value="ai" className="mt-0 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-[15px]">Ask Ventage AI</CardTitle>
+                <CardTitle className="text-[15px]">Ask Threadly AI</CardTitle>
                 <CardDescription>
                   Bring your own OpenAI key to power the assistant. The key is
                   stored with your account and used only for your requests — it
@@ -483,39 +509,89 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="text-[15px]">Data & export</CardTitle>
                 <CardDescription>
-                  CSV export and backups arrive in Phase 7.
+                  Download your data anytime as CSV — perfect for spreadsheets or backups.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { label: "Export inventory (CSV)", desc: "All items with costs, prices, and status." },
-                  { label: "Export sales history (CSV)", desc: "Every sale with fees and payouts." },
-                  { label: "Export expenses (CSV)", desc: "All categorized expenses." },
-                ].map((e, i) => (
-                  <div key={i} className="flex items-center justify-between gap-4 rounded-lg border p-3.5">
-                    <div>
-                      <p className="text-[13.5px] font-medium">{e.label}</p>
-                      <p className="text-[12.5px] text-muted-foreground">{e.desc}</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        toast("Coming in Phase 7", {
-                          description: `${e.label} export arrives in a later phase.`,
-                        })
-                      }
-                    >
-                      <Download className="size-3.5" />
-                      Export
-                    </Button>
-                  </div>
-                ))}
+                <ExportRow
+                  label="Export inventory (CSV)"
+                  desc="All items with costs, prices, and status."
+                  onClick={() => {
+                    downloadCsv("threadly-inventory.csv", [
+                      ["SKU", "Name", "Brand", "Category", "Size", "Era", "Condition", "Status", "Cost", "Asking price", "Sold price", "Acquired", "Listed", "Notes", "Tags"],
+                      ...items.map((i) => [
+                        i.sku,
+                        i.name,
+                        i.brand,
+                        i.category,
+                        i.size,
+                        i.era,
+                        i.condition,
+                        i.status,
+                        i.purchasePrice.toFixed(2),
+                        i.listingPrice.toFixed(2),
+                        i.soldPrice?.toFixed(2) ?? "",
+                        i.acquiredDate,
+                        i.listedDate ?? "",
+                        i.notes.join(" | "),
+                        i.tags.join(" | "),
+                      ]),
+                    ]);
+                    toast("Inventory exported", { description: "threadly-inventory.csv downloaded." });
+                  }}
+                />
+                <ExportRow
+                  label="Export sales history (CSV)"
+                  desc="Every sale with fees and payouts."
+                  onClick={() => {
+                    downloadCsv("threadly-sales.csv", [
+                      ["Date", "Item", "Marketplace", "Sold price", "Fees", "Shipping", "Payout", "Profit"],
+                      ...sales.map((s) => [
+                        s.soldDate,
+                        s.itemName,
+                        MARKETPLACE_META[s.marketplace]?.name ?? s.marketplace,
+                        s.soldPrice.toFixed(2),
+                        s.fees.toFixed(2),
+                        s.shippingCost.toFixed(2),
+                        s.payout.toFixed(2),
+                        s.profit.toFixed(2),
+                      ]),
+                    ]);
+                    toast("Sales exported", { description: "threadly-sales.csv downloaded." });
+                  }}
+                />
+                <ExportRow
+                  label="Export expenses (CSV)"
+                  desc="All categorized expenses."
+                  onClick={() => {
+                    downloadCsv("threadly-expenses.csv", [
+                      ["Date", "Category", "Description", "Amount"],
+                      ...expenses.map((e) => [e.date, e.category, e.description, e.amount.toFixed(2)]),
+                    ]);
+                    toast("Expenses exported", { description: "threadly-expenses.csv downloaded." });
+                  }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
         </div>
       </Tabs>
+
+      <Card className="mt-6">
+        <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-[14px] font-medium">Need help?</p>
+            <p className="text-[13px] text-muted-foreground">
+              Questions about your shop, billing, or an eBay connection — reach the app owner directly.
+            </p>
+          </div>
+          {SUPPORT_EMAIL && (
+            <Button variant="outline" size="sm" asChild>
+              <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+            </Button>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -38,7 +38,7 @@ export default function Signup() {
       if (needsEmailConfirmation) {
         setConfirmed(true);
       } else {
-        toast("Welcome to Ventage!", {
+        toast("Welcome to Threadly!", {
           description: "Your shop is ready — let's get you set up.",
         });
         // The router lands on /onboarding once the session is active.
@@ -176,6 +176,17 @@ export default function Signup() {
           <Button type="submit" className="w-full" disabled={busy || googleBusy}>
             {busy ? "Creating account…" : "Create account"}
           </Button>
+          <p className="text-center text-[12px] leading-relaxed text-muted-foreground">
+            By creating an account, you agree to our{" "}
+            <Link to="/terms" className="font-medium text-primary hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="font-medium text-primary hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </form>
       </div>
     </AuthLayout>

@@ -34,3 +34,19 @@ export const PORT = Number(process.env.PORT ?? 8787);
 export const AI_RATE_LIMIT_PER_HOUR = Number(
   process.env.AI_RATE_LIMIT_PER_HOUR ?? 30
 );
+
+/* ── eBay marketplace integration (server-side only) ──────────────── */
+
+/**
+ * eBay developer credentials (create at developer.ebay.com → Applications →
+ * Keys). The redirect URI must be registered in the eBay app AND match this
+ * value exactly, e.g. https://your-app.com/api/marketplaces/ebay/auth/callback
+ * (with https://api.sandbox.ebay.com/auth/devaccount/... in sandbox mode).
+ */
+export const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID ?? "";
+export const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET ?? "";
+export const EBAY_REDIRECT_URI = process.env.EBAY_REDIRECT_URI ?? "";
+
+/** Set to "true" to run against the eBay sandbox instead of production. */
+export const EBAY_SANDBOX =
+  (process.env.EBAY_SANDBOX ?? "").toLowerCase() === "true";

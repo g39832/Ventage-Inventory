@@ -68,10 +68,10 @@ export default function Login() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your Ventage shop."
+      subtitle="Sign in to your Threadly shop."
       footer={
         <>
-          New to Ventage?{" "}
+          New to Threadly?{" "}
           <Link to="/signup" className="font-medium text-primary hover:underline">
             Create an account
           </Link>
@@ -134,6 +134,17 @@ export default function Login() {
           <Button type="submit" className="w-full" disabled={busy || googleBusy}>
             {busy ? "Signing in…" : "Sign in"}
           </Button>
+          <p className="text-center text-[12px] leading-relaxed text-muted-foreground">
+            By continuing, you agree to our{" "}
+            <Link to="/terms" className="font-medium text-primary hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="font-medium text-primary hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </form>
       </div>
     </AuthLayout>

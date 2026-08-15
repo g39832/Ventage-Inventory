@@ -11,6 +11,8 @@ import {
 import { friendlyError, isSupabaseConfigured } from "@/lib/db/client";
 import * as connectionsService from "@/lib/db/connections";
 import type { ConnectionPatch } from "@/lib/db/connections";
+import * as ebayApi from "@/lib/ebay";
+import type { EbaySyncResult } from "@/lib/ebay";
 import * as expensesService from "@/lib/db/expenses";
 import type { ExpenseInput, ExpensePatch } from "@/lib/db/expenses";
 import * as inventoryService from "@/lib/db/inventory";
@@ -69,6 +71,12 @@ interface DataContextValue {
   disconnectMarketplace: (id: MarketplaceId) => Promise<void>;
   syncMarketplace: (id: MarketplaceId) => Promise<void>;
   saveSettings: (settings: AppSettings) => Promise<void>;
+  // eBay — real integration (requires the app's eBay keys on the server)
+  ebayConnected: boolean;
+  publishToEbay: (item: Item) => Promise<Item>;
+  unlistFromEbay: (item: Item) => Promise<void>;
+  syncEbay: () => Promise<EbaySyncResult>;
+  disconnectEbay: () => Promise<void>;
   // Photo mutations
   addPhoto: (itemId: string, file: File) => Promise<ItemPhoto>;
   removePhoto: (photo: ItemPhoto) => Promise<void>;
@@ -259,6 +267,66 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setConnections((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
   }, []);
 
+  // ── eBay (real integration) ─────────────────────────────────
+
+  const ebayConnected = connections.find((c) => c.id === "ebay")?.status === "connected";
+
+  const refreshEbayListings = useCallback((updated: Item) => {
+    setConnections((prev) =>
+      prev.map((c) =>
+        c.id === "ebay"
+          ? { ...c, listings: liveListingsOn([...items.filter((i) => i.id !== updated.id), updated], "ebay") }
+          : c
+      )
+    );
+  }, [items]);
+
+  const publishToEbay = useCallback(
+    async (item: Item): Promise<Item> => {
+      const result = await ebayApi.publishToEbay(item.id);
+      const updated = await inventoryService.updateEbayListing(item, {
+        status: "live",
+        listingId: result.listingId,
+        price: item.listingPrice,
+      });
+      setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+      refreshEbayListings(updated);
+      return updated;
+    },
+    [refreshEbayListings]
+  );
+
+  const unlistFromEbay = useCallback(
+    async (item: Item) => {
+      await ebayApi.unlistFromEbay(item.id);
+      const updated = await inventoryService.updateEbayListing(item, { status: "none" });
+      setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+      refreshEbayListings(updated);
+    },
+    [refreshEbayListings]
+  );
+
+  const syncEbay = useCallback(async (): Promise<EbaySyncResult> => {
+    const result = await ebayApi.syncEbay();
+    setConnections((prev) =>
+      prev.map((c) =>
+        c.id === "ebay" ? { ...c, listings: result.listings, lastSync: result.lastSync } : c
+      )
+    );
+    return result;
+  }, []);
+
+  const disconnectEbay = useCallback(async () => {
+    await ebayApi.disconnectEbay();
+    setConnections((prev) =>
+      prev.map((c) =>
+        c.id === "ebay"
+          ? { ...c, status: "not-connected", account: undefined, syncType: "manual", lastSync: undefined }
+          : c
+      )
+    );
+  }, []);
+
   const saveSettings = useCallback(async (next: AppSettings) => {
     await settingsService.saveSettings(next);
     setSettings(next);
@@ -349,6 +417,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
       disconnectMarketplace,
       syncMarketplace,
       saveSettings,
+      ebayConnected,
+      publishToEbay,
+      unlistFromEbay,
+      syncEbay,
+      disconnectEbay,
       addPhoto,
       removePhoto,
       movePhoto,
@@ -381,6 +454,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     disconnectMarketplace,
     syncMarketplace,
     saveSettings,
+    ebayConnected,
+    publishToEbay,
+    unlistFromEbay,
+    syncEbay,
+    disconnectEbay,
     addPhoto,
     removePhoto,
     movePhoto,

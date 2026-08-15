@@ -1,9 +1,9 @@
 -- ============================================================
--- Ventage — Phase 2 demo seed (development only)
+-- Threadly — Phase 2 demo seed (development only)
 -- Run AFTER schema.sql. Uses relative dates (NOW() - N days)
 -- so the demo always looks current, no matter when it's run.
 --
--- WARNING: This truncates the Ventage data tables. Run only on
+-- WARNING: This truncates the Threadly data tables. Run only on
 -- a fresh database or when you want to reset to demo data.
 --
 -- NOTE: All rows here are owner-less (owner_id = NULL), so RLS
@@ -22,7 +22,8 @@ truncate table
   tasks,
   marketplace_connections,
   inventory_items,
-  app_settings
+  app_settings,
+  ebay_tokens
 cascade;
 
 -- ------------------------------------------------------------
@@ -42,7 +43,7 @@ on conflict (id) do nothing;
 -- ------------------------------------------------------------
 insert into marketplace_connections
   (owner_id, marketplace_id, status, account, sync_type, note, last_sync) values
-  (null, 'ebay',     'connected',     'grayson.resells',     'auto',   'Listings, sales, and fees pull in automatically once integration is live.', now() - interval '3 hours'),
+  (null, 'ebay',     'connected',     'grayson.resells',     'auto',   'Connected via the eBay API — listings and orders sync automatically.', now() - interval '3 hours'),
   (null, 'depop',    'connected',     '@grayson.thrift',     'manual', 'Listings are tracked manually until the Depop integration ships.',          now() - interval '1 day'),
   (null, 'poshmark', 'connected',     '@grayson.vintage',    'manual', 'Offers and bundles are noted in item history manually.',                     now() - interval '2 days'),
   (null, 'vinted',   'manual',        '@vintage.grayson',    'manual', 'Connected for tracking — prices and listings stay in sync by hand.',          now() - interval '3 days'),

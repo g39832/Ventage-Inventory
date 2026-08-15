@@ -325,7 +325,7 @@ export async function archiveItem(id: string): Promise<void> {
     item_id: id,
     kind: "note",
     title: "Item archived",
-    description: "Moved out of active inventory. Restorable in a future phase.",
+    description: "Moved out of active inventory.",
     occurred_at: new Date().toISOString(),
   });
 }
@@ -449,6 +449,44 @@ export async function setListingStatus(
       status === "live"
         ? `Listed at ${item.listingPrice.toFixed(2)} USD.`
         : "Listing taken down.",
+    occurred_at: now,
+  });
+
+  return fetchAppItem(item.id);
+}
+
+/**
+ * Record a REAL eBay listing (id from the eBay API) or clear it, and add a
+ * timeline event. Used after publishToEbay / unlistFromEbay succeed.
+ */
+export async function updateEbayListing(
+  item: Item,
+  patch: { status: "live" | "none"; listingId?: string; price?: number }
+): Promise<Item> {
+  const client = db();
+  const now = new Date().toISOString();
+
+  await client
+    .from("marketplace_listings")
+    .upsert(
+      {
+        item_id: item.id,
+        marketplace_id: "ebay" as const,
+        status: patch.status,
+        price: patch.price ?? (patch.status === "live" ? item.listingPrice : null),
+        listing_id: patch.listingId ?? null,
+      },
+      { onConflict: "item_id,marketplace_id" }
+    );
+
+  await client.from("inventory_events").insert({
+    item_id: item.id,
+    kind: patch.status === "live" ? "listed" : "note",
+    title: patch.status === "live" ? "Listed on eBay" : "Removed from eBay",
+    description:
+      patch.status === "live"
+        ? `Published to eBay (listing ${patch.listingId ?? ""}).`
+        : "Listing ended on eBay.",
     occurred_at: now,
   });
 

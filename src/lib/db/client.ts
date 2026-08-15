@@ -54,7 +54,7 @@ function buildClient(): SupabaseClient {
 export function db(): SupabaseClient {
   if (!client) client = isSupabaseConfigured ? buildClient() : null;
   if (!client) {
-    throw new Error("Ventage isn't connected to a Supabase project yet.");
+    throw new Error("Threadly isn't connected to a Supabase project yet.");
   }
   return client;
 }
