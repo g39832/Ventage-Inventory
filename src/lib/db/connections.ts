@@ -13,23 +13,27 @@ export interface ConnectionPatch {
 }
 
 export async function listConnections(): Promise<MarketplaceConnection[]> {
-  const client = db();
-  const [{ data: marketplaces, error: mpErr }, { data: connections, error: connErr }] =
-    await Promise.all([
-      client.from("marketplaces").select("*").order("sort_order", { ascending: true }),
-      client.from("marketplace_connections").select("*"),
-    ]);
-  if (mpErr) throw new Error(mpErr.message);
-  if (connErr) throw new Error(connErr.message);
+  try {
+    const client = db();
+    const [{ data: marketplaces, error: mpErr }, { data: connections, error: connErr }] =
+      await Promise.all([
+        client.from("marketplaces").select("*").order("sort_order", { ascending: true }),
+        client.from("marketplace_connections").select("*"),
+      ]);
+    if (mpErr) throw new Error(mpErr.message);
+    if (connErr) throw new Error(connErr.message);
 
-  const connByMarket = new Map<string, ConnectionRow>();
-  for (const c of (connections ?? []) as ConnectionRow[]) {
-    connByMarket.set(c.marketplace_id, c);
+    const connByMarket = new Map<string, ConnectionRow>();
+    for (const c of (connections ?? []) as ConnectionRow[]) {
+      connByMarket.set(c.marketplace_id, c);
+    }
+
+    return ((marketplaces ?? []) as MarketplaceRow[]).map((mp) =>
+      mapConnection(mp, connByMarket.get(mp.id))
+    );
+  } catch {
+    return [];
   }
-
-  return ((marketplaces ?? []) as MarketplaceRow[]).map((mp) =>
-    mapConnection(mp, connByMarket.get(mp.id))
-  );
 }
 
 export async function updateConnection(

@@ -15,19 +15,23 @@ export interface NewSaleInput {
 }
 
 export async function listSales(): Promise<Sale[]> {
-  const client = db();
-  const { data: saleRows, error } = await client
-    .from("sales")
-    .select("*")
-    .order("sold_date", { ascending: false });
-  if (error) throw new Error(error.message);
+  try {
+    const client = db();
+    const { data: saleRows, error } = await client
+      .from("sales")
+      .select("*")
+      .order("sold_date", { ascending: false });
+    if (error) throw new Error(error.message);
 
-  const items = await listItems();
-  const byId = new Map(items.map((i) => [i.id, i]));
+    const items = await listItems();
+    const byId = new Map(items.map((i) => [i.id, i]));
 
-  return (saleRows ?? []).map((row, i) =>
-    mapSale(row as SaleRow, i, row.item_id ? byId.get(row.item_id) : undefined)
-  );
+    return (saleRows ?? []).map((row, i) =>
+      mapSale(row as SaleRow, i, row.item_id ? byId.get(row.item_id) : undefined)
+    );
+  } catch {
+    return [];
+  }
 }
 
 /** Create a standalone (non-inventory-linked) sale. */

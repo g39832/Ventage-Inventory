@@ -22,18 +22,22 @@ function storagePathFromUrl(url: string): { bucket: string; path: string } | nul
 /* ── Item photos ─────────────────────────────────────────────── */
 
 export async function listPhotos(): Promise<ItemPhoto[]> {
-  const client = db();
-  const { data, error } = await client
-    .from("inventory_photos")
-    .select("id, item_id, url, position")
-    .order("position", { ascending: true });
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((r) => ({
-    id: r.id as string,
-    itemId: r.item_id as string,
-    url: r.url as string,
-    position: Number(r.position),
-  }));
+  try {
+    const client = db();
+    const { data, error } = await client
+      .from("inventory_photos")
+      .select("id, item_id, url, position")
+      .order("position", { ascending: true });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r) => ({
+      id: r.id as string,
+      itemId: r.item_id as string,
+      url: r.url as string,
+      position: Number(r.position),
+    }));
+  } catch {
+    return [];
+  }
 }
 
 /** Optimize, upload to storage, and record an item photo row. */

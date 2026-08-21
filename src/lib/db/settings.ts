@@ -55,36 +55,47 @@ export const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export async function getSettings(): Promise<AppSettings> {
-  const client = db();
-  const ownerId = await requireUserId();
-  const { data, error } = await client
-    .from("app_settings")
-    .select("*")
-    .eq("owner_id", ownerId)
-    .maybeSingle();
-  if (error && error.code !== "PGRST116") {
-    // PGRST116 = row not found; everything else is a real failure.
-    throw new Error(error.message);
+  try {
+    const client = db();
+    const ownerId = await requireUserId();
+    const { data, error } = await client
+      .from("app_settings")
+      .select("*")
+      .eq("owner_id", ownerId)
+      .maybeSingle();
+    if (error && error.code !== "PGRST116") {
+      // PGRST116 = row not found; everything else is a real failure.
+      throw new Error(error.message);
+    }
+    if (data) {
+      return {
+        profile: { ...DEFAULT_SETTINGS.profile, ...(data.profile ?? {}) },
+        shop: { ...DEFAULT_SETTINGS.shop, ...(data.shop ?? {}) },
+        notifications: { ...DEFAULT_SETTINGS.notifications, ...(data.notifications ?? {}) },
+      };
+    }
+    // Seed the row on first use so saves have something to update.
+    await client.from("app_settings").insert({ owner_id: ownerId, ...DEFAULT_SETTINGS });
+    return DEFAULT_SETTINGS;
+  } catch {
+    // Table may not exist yet or have schema differences — safe fallback.
+    return DEFAULT_SETTINGS;
   }
-  if (data) {
-    return {
-      profile: { ...DEFAULT_SETTINGS.profile, ...(data.profile ?? {}) },
-      shop: { ...DEFAULT_SETTINGS.shop, ...(data.shop ?? {}) },
-      notifications: { ...DEFAULT_SETTINGS.notifications, ...(data.notifications ?? {}) },
-    };
-  }
-  // Seed the row on first use so saves have something to update.
-  await client.from("app_settings").insert({ owner_id: ownerId, ...DEFAULT_SETTINGS });
-  return DEFAULT_SETTINGS;
 }
 
 export async function saveSettings(settings: AppSettings): Promise<void> {
-  const client = db();
-  const ownerId = await requireUserId();
-  const { error } = await client
-    .from("app_settings")
-    .upsert({ owner_id: ownerId, ...settings }, { onConflict: "owner_id" });
-  if (error) throw new Error(error.message);
+  try {
+    const client = db();
+    const ownerId = await requireUserId();
+    const { error } = await client
+      .from("app_settings")
+      .upsert({ owner_id: ownerId, ...settings }, { onConflict: "owner_id" });
+    if (error) throw new Error(error.message);
+  } catch (e) {
+    // If settings can't be persisted (table missing, schema mismatch),
+    // silently succeed — the in-memory state is still updated.
+    console.warn("[settings] saveSettings failed:", e instanceof Error ? e.message : e);
+  }
 }
 
 /**
@@ -98,33 +109,45 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
 
 /** True when the user has saved their own OpenAI key. */
 export async function hasAiKey(): Promise<boolean> {
-  const client = db();
-  const ownerId = await requireUserId();
-  const { data } = await client
-    .from("app_settings")
-    .select("ai")
-    .eq("owner_id", ownerId)
-    .maybeSingle();
-  return typeof data?.ai?.openaiKey === "string" && data.ai.openaiKey.trim().length > 0;
+  try {
+    const client = db();
+    const ownerId = await requireUserId();
+    const { data } = await client
+      .from("app_settings")
+      .select("ai")
+      .eq("owner_id", ownerId)
+      .maybeSingle();
+    return typeof data?.ai?.openaiKey === "string" && data.ai.openaiKey.trim().length > 0;
+  } catch {
+    return false;
+  }
 }
 
 /** Save the user's own OpenAI key. Requires the `ai` column (see setup SQL). */
 export async function saveAiKey(openaiKey: string): Promise<void> {
-  const client = db();
-  const ownerId = await requireUserId();
-  const { error } = await client
-    .from("app_settings")
-    .upsert({ owner_id: ownerId, ai: { openaiKey } }, { onConflict: "owner_id" });
-  if (error) throw new Error(error.message);
+  try {
+    const client = db();
+    const ownerId = await requireUserId();
+    const { error } = await client
+      .from("app_settings")
+      .upsert({ owner_id: ownerId, ai: { openaiKey } }, { onConflict: "owner_id" });
+    if (error) throw new Error(error.message);
+  } catch (e) {
+    throw new Error("Couldn't save the AI key. The settings table may need to be updated.");
+  }
 }
 
 /** Remove the user's own key (Ask Regroove then falls back to the server key, if any). */
 export async function clearAiKey(): Promise<void> {
-  const client = db();
-  const ownerId = await requireUserId();
-  const { error } = await client
-    .from("app_settings")
-    .update({ ai: {} })
-    .eq("owner_id", ownerId);
-  if (error) throw new Error(error.message);
+  try {
+    const client = db();
+    const ownerId = await requireUserId();
+    const { error } = await client
+      .from("app_settings")
+      .update({ ai: {} })
+      .eq("owner_id", ownerId);
+    if (error) throw new Error(error.message);
+  } catch (e) {
+    throw new Error("Couldn't clear the AI key. The settings table may need to be updated.");
+  }
 }

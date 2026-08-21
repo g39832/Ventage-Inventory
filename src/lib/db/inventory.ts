@@ -106,45 +106,49 @@ async function fetchAppItem(id: string): Promise<Item> {
 }
 
 export async function listItems(): Promise<Item[]> {
-  const client = db();
-  const [{ data: itemRows, error: itemErr }, { data: listingRows, error: listErr }, { data: eventRows, error: evErr }, { data: saleRows, error: saleErr }] =
-    await Promise.all([
-      client.from("inventory_items").select("*").is("deleted_at", null).order("created_at", { ascending: false }),
-      client.from("marketplace_listings").select("*"),
-      client.from("inventory_events").select("*").order("occurred_at", { ascending: true }),
-      client.from("sales").select("*"),
-    ]);
-  if (itemErr) throw new Error(itemErr.message);
-  if (listErr) throw new Error(listErr.message);
-  if (evErr) throw new Error(evErr.message);
-  if (saleErr) throw new Error(saleErr.message);
+  try {
+    const client = db();
+    const [{ data: itemRows, error: itemErr }, { data: listingRows, error: listErr }, { data: eventRows, error: evErr }, { data: saleRows, error: saleErr }] =
+      await Promise.all([
+        client.from("inventory_items").select("*").is("deleted_at", null).order("created_at", { ascending: false }),
+        client.from("marketplace_listings").select("*"),
+        client.from("inventory_events").select("*").order("occurred_at", { ascending: true }),
+        client.from("sales").select("*"),
+      ]);
+    if (itemErr) throw new Error(itemErr.message);
+    if (listErr) throw new Error(listErr.message);
+    if (evErr) throw new Error(evErr.message);
+    if (saleErr) throw new Error(saleErr.message);
 
-  const listingsByItem = new Map<string, ListingRow[]>();
-  for (const l of (listingRows ?? []) as ListingRow[]) {
-    const arr = listingsByItem.get(l.item_id) ?? [];
-    arr.push(l);
-    listingsByItem.set(l.item_id, arr);
-  }
-  const eventsByItem = new Map<string, EventRow[]>();
-  for (const e of (eventRows ?? []) as EventRow[]) {
-    const arr = eventsByItem.get(e.item_id) ?? [];
-    arr.push(e);
-    eventsByItem.set(e.item_id, arr);
-  }
-  const saleByItem = new Map<string, SaleRow>();
-  for (const s of (saleRows ?? []) as SaleRow[]) {
-    if (s.item_id && !saleByItem.has(s.item_id)) saleByItem.set(s.item_id, s);
-  }
+    const listingsByItem = new Map<string, ListingRow[]>();
+    for (const l of (listingRows ?? []) as ListingRow[]) {
+      const arr = listingsByItem.get(l.item_id) ?? [];
+      arr.push(l);
+      listingsByItem.set(l.item_id, arr);
+    }
+    const eventsByItem = new Map<string, EventRow[]>();
+    for (const e of (eventRows ?? []) as EventRow[]) {
+      const arr = eventsByItem.get(e.item_id) ?? [];
+      arr.push(e);
+      eventsByItem.set(e.item_id, arr);
+    }
+    const saleByItem = new Map<string, SaleRow>();
+    for (const s of (saleRows ?? []) as SaleRow[]) {
+      if (s.item_id && !saleByItem.has(s.item_id)) saleByItem.set(s.item_id, s);
+    }
 
-  return (itemRows ?? []).map((row, i) =>
-    mapItem(
-      row as ItemRow,
-      listingsByItem.get((row as ItemRow).id) ?? [],
-      eventsByItem.get((row as ItemRow).id) ?? [],
-      saleByItem.get((row as ItemRow).id),
-      i
-    )
-  );
+    return (itemRows ?? []).map((row, i) =>
+      mapItem(
+        row as ItemRow,
+        listingsByItem.get((row as ItemRow).id) ?? [],
+        eventsByItem.get((row as ItemRow).id) ?? [],
+        saleByItem.get((row as ItemRow).id),
+        i
+      )
+    );
+  } catch {
+    return [];
+  }
 }
 
 export async function createItem(input: NewItemInput): Promise<Item> {

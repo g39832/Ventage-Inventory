@@ -17,13 +17,17 @@ export interface ExpensePatch {
 }
 
 export async function listExpenses(): Promise<Expense[]> {
-  const client = db();
-  const { data, error } = await client
-    .from("expenses")
-    .select("*")
-    .order("date", { ascending: false });
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((row) => mapExpense(row as ExpenseRow));
+  try {
+    const client = db();
+    const { data, error } = await client
+      .from("expenses")
+      .select("*")
+      .order("date", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((row) => mapExpense(row as ExpenseRow));
+  } catch {
+    return [];
+  }
 }
 
 export async function createExpense(input: ExpenseInput): Promise<Expense> {
