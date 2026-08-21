@@ -62,8 +62,32 @@ The integration stores per-user tokens in a new `ebay_tokens` table:
 2. Paste `supabase/ebay.sql` and run it.
    (If you're on a fresh database that already ran `supabase/schema.sql`, you can skip this
    — schema.sql already includes the table.)
+3. **Item research (sold comps)** needs the `research_history` table — run
+   `supabase/research.sql` too (fresh databases get it from schema.sql).
 
-## 4. Test (recommended: sandbox first)
+## 4. Item research (sold comps) — same keys, no extra setup
+
+The **Research** page (sidebar → Selling → Research) searches eBay for active listings and
+recent sold comps before you buy. It uses the **same `EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET`**
+you just configured — nothing extra to create.
+
+- Research calls the **Buy Browse API** (`/buy/browse/v1/item_summary/search`) with an
+  **application access token** (client credentials) that the server obtains from your keys.
+  That means users do **not** need to connect their own eBay account to research items.
+- Sold comps use the official `itemEndState:EndedWithSales` filter (final sale prices).
+  eBay's ended-item index only covers a recent window of ended listings, so older sales
+  won't show — the app says so in the results.
+- Identical searches are cached 30 minutes server-side, and research is throttled per user
+  (60/hour) and app-wide (1,500/day) to protect the app key's Buy API quota. Tune with
+  `EBAY_RESEARCH_LIMIT_PER_HOUR` / `EBAY_RESEARCH_LIMIT_GLOBAL_PER_DAY` if needed.
+- If the keys are missing, the Research page shows a friendly "eBay isn't configured"
+  message instead of failing.
+
+> **Sandbox note:** with `EBAY_SANDBOX=true`, research hits the sandbox API. Sandbox
+> ended-item data is sparse, so sold comps may legitimately come back empty — active
+> listings and the honest "no sold data" state are the reliable sandbox checks.
+
+## 5. Test (recommended: sandbox first)
 
 > For the complete step-by-step sandbox test — connect, publish, sync, unlist,
 > re-publish, and every error path with pass/fail checks — see `EBAY_TESTING.md`.
@@ -79,7 +103,7 @@ The integration stores per-user tokens in a new `ebay_tokens` table:
 6. When it all works, switch to your production keys and set `EBAY_SANDBOX` to `false`
    (or remove it).
 
-## 5. How publishing works (defaults you should know)
+## 6. How publishing works (defaults you should know)
 
 When a user publishes an item, Regroove:
 

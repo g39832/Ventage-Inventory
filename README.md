@@ -17,6 +17,7 @@ Regroove is a multi-user web app that gives a reselling shop one source of truth
 | **Sales & expenses** | Log sales with fees and shipping to get real payout and profit. Categorized expenses, item-level expenses. |
 | **Analytics & reports** | Dashboard KPIs, revenue/profit charts, category and marketplace breakdowns, plus 6 downloadable reports (CSV and print-to-PDF): Monthly P&L, quarterly, yearly, tax summary, inventory valuation, top sellers. |
 | **Marketplaces** | **eBay is a real integration** — connect your eBay account and publish items, end listings, and sync live status + recent orders through eBay's official API. Depop, Poshmark, Vinted, Mercari, and Facebook Marketplace don't offer third-party selling APIs, so they're honest manual tracking. |
+| **Research** | Research an item **before you buy it** — search eBay's official Browse API for live active listings and recent sold comps, then get resale metrics (sell-through rate, average/median sold price, estimated market price) with a clearly-labeled estimate. Optional save-to-history and a purchase-price profit/ROI calculator. No user eBay connection needed — it uses the app's keys. |
 | **Ask Regroove (AI)** | A chat assistant that answers questions from your own data and drafts listing copy. Bring-your-own OpenAI key per user, or set one server-wide key. Rate-limited by default. |
 | **Multi-user & secure** | Every user has isolated data enforced by Supabase Row Level Security. No service-role key is used anywhere; the server derives identity from the verified Supabase session. |
 
@@ -63,9 +64,10 @@ render.yaml             Render blueprint (builds frontend + runs server)
 
 1. **Create a Supabase project** (free tier is fine to start) at supabase.com.
 2. **Run the schema** in the SQL Editor:
-   - `supabase/schema.sql` (tables + RLS; includes the eBay tokens table)
+   - `supabase/schema.sql` (tables + RLS; includes the eBay tokens + research history tables)
    - `supabase/storage.sql` (photo/avatar buckets)
    - *(optional, dev only)* `supabase/seed.sql` for owner-less demo data
+   - *Upgrading an existing database?* run `supabase/ebay.sql` and `supabase/research.sql` on top of your current schema instead.
 3. **Configure auth URLs** — Supabase → Authentication → URL Configuration → Site URL + Redirect URLs to your app URL (`http://localhost:5173` in dev).
 4. **Create `.env.local`** from `.env.example`:
    ```
@@ -96,6 +98,16 @@ eBay is the one marketplace with a real API, and Regroove makes it a two-part se
 
 > eBay tokens are stored per-user, server-side, behind Row Level Security. The browser never touches eBay directly.
 
+## Researching an item (sold comps)
+
+The **Research** page (sidebar → Selling → Research) helps you decide whether a piece is worth picking up before you buy it. It uses the **same eBay developer keys** — no per-user eBay connection is required, because the Buy Browse API search accepts an *application* access token that the server obtains from your keys.
+
+- **Active listings** come from a plain keyword search; **sold comps** come from the official `itemEndState:EndedWithSales` filter, which returns ended-with-sales items with their final prices (the retired Finding API's `findCompletedItems` is what it replaces).
+- Metrics (sell-through rate, average/median sold price, estimated market price) are computed in application code, never by AI. Ask prices are kept strictly separate from sale prices.
+- **Honest by design:** if eBay returns no sold comps, the page says so and shows only what's computable. eBay's ended-item index only covers a recent window of ended listings.
+- **Caching & cost control:** identical searches are cached server-side for 30 minutes, and research is throttled per user (60/hour) and app-wide (1,500/day — tune with `EBAY_RESEARCH_LIMIT_PER_HOUR` / `EBAY_RESEARCH_LIMIT_GLOBAL_PER_DAY`) to protect the app key's daily Buy API quota.
+- Saved research lives in the `research_history` table behind the same RLS model — each user only ever sees their own.
+
 ## Costs (who pays what)
 
 | Service | Plan | Cost |
@@ -122,7 +134,9 @@ reach another user's data or run up the owner's bill:
   For a hard backstop, set a monthly usage limit on the OpenAI account dashboard
   and a spend cap in Supabase.
 - **eBay throttling** — publish/unlist/sync are rate-limited per user (60/hour)
-  so a misbehaving client can't get the developer app flagged.
+  so a misbehaving client can't get the developer app flagged; item research
+  is capped per user (60/hour) and app-wide (1,500/day) so a busy day can't
+  burn the app key's shared Buy API quota.
 - **Upload limits** — photos are resized client-side, capped at 15 MB per file
   and 12 per item.
 - **CSV export safety** — exported spreadsheets guard against formula injection.

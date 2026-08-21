@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Package,
   PlusCircle,
+  Search,
   Settings,
   Shirt,
   ShoppingCart,
@@ -33,6 +34,7 @@ const NAV = [
   {
     group: "Selling",
     items: [
+      { label: "Research", to: "/research", icon: Search },
       { label: "Sales", to: "/sales", icon: ShoppingCart },
       { label: "Analytics", to: "/analytics", icon: BarChart3 },
       { label: "Reports", to: "/reports", icon: FileText },

@@ -16,7 +16,11 @@ async function sessionToken(): Promise<string> {
   return token;
 }
 
-async function request<T>(
+/**
+ * Authenticated JSON request against the Regroove server. Shared by the
+ * eBay marketplace client and the Research (item research) client.
+ */
+export async function request<T>(
   path: string,
   options: { method?: string; body?: unknown } = {}
 ): Promise<T> {

@@ -60,7 +60,7 @@ async function ebayFetch(
   return data;
 }
 
-function extractEbayError(data: unknown): string {
+export function extractEbayError(data: unknown): string {
   if (data && typeof data === "object") {
     const d = data as {
       errors?: { message?: string; longMessage?: string }[];

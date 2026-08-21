@@ -22,6 +22,7 @@ import Expenses from "@/pages/Expenses";
 import Analytics from "@/pages/Analytics";
 import Marketplace from "@/pages/Marketplace";
 import Reports from "@/pages/Reports";
+import Research from "@/pages/Research";
 import Settings from "@/pages/Settings";
 import EbayCallback from "@/pages/EbayCallback";
 import { Privacy, Terms } from "@/pages/Legal";
@@ -155,6 +156,7 @@ function ProtectedRoutes() {
               <Route path="/sales" element={<Sales />} />
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/analytics" element={<Analytics />} />
+              <Route path="/research" element={<Research />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />

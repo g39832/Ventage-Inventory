@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Shirt } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Check, Info, Shirt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -42,19 +42,23 @@ const ERAS = ["60s", "70s", "80s", "90s", "2000s", "2010s"];
 export default function AddInventory() {
   const navigate = useNavigate();
   const { createItem, addPhoto } = useData();
+  const [searchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
   const [photos, setPhotos] = useState<File[]>([]);
   const [previewUrl, setPreviewUrl] = useState("");
   const [step, setStep] = useState<1 | 2>(1);
+  // Pre-filled from the Research page (?name=…&listingPrice=…) when the
+  // user chose "Add to inventory" — never auto-saves, the user confirms.
+  const prefilledFromResearch = Boolean(searchParams.get("name"));
   const [form, setForm] = useState({
-    name: "",
+    name: searchParams.get("name") ?? "",
     brand: "",
     category: "",
     size: "",
     era: "",
     condition: "Very good",
-    purchasePrice: "",
-    listingPrice: "",
+    purchasePrice: searchParams.get("purchasePrice") ?? "",
+    listingPrice: searchParams.get("listingPrice") ?? "",
     description: "",
     notes: "",
     marketplaces: [] as string[],
@@ -139,6 +143,21 @@ export default function AddInventory() {
           { label: "Add item" },
         ]}
       />
+
+      {prefilledFromResearch && (
+        <Card className="mb-6 border-info/30 bg-info/5">
+          <CardContent className="flex items-start gap-3">
+            <Info className="mt-0.5 size-4 shrink-0 text-info" />
+            <div className="text-[13.5px] leading-relaxed text-foreground/85">
+              <p className="font-semibold">Pre-filled from item research</p>
+              <p className="mt-1 text-muted-foreground">
+                The name and asking price came from your Research page search. Nothing is
+                saved until you confirm — adjust anything before continuing.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Step indicator */}
       <div className="mb-6 flex items-center gap-3">

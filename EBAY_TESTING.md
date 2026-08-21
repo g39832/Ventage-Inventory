@@ -3,7 +3,8 @@
 > Run this end-to-end against **eBay's sandbox** before relying on the eBay
 > integration in production (and before requesting production access, if you
 > haven't already). It exercises the full flow: **connect → publish → sync →
-> unlist → re-publish → error paths**. Every step names the endpoint it hits
+> unlist → re-publish → error paths**, plus the **Research** (sold comps)
+> feature in Test 8. Every step names the endpoint it hits
 > and what success looks like, so a failure is quick to isolate.
 
 **Time:** ~45 minutes. **Cost:** $0.
@@ -234,9 +235,58 @@ curl -s -X POST $BASE/unlist -H "Authorization: Bearer $TOKEN" -H "Content-Type:
 production access), or ship with eBay documented as "owner completes the
 one-time key setup" — the app is fully functional without it.
 
+> **Research (sold comps)** has its own pass criteria in **Test 8** above.
+> It uses the same keys, so it's covered automatically once Test 1 confirms
+> the server sees them.
+
 ---
 
-## 11. Cleaning up
+## 11. Test 8 — Research (item research / sold comps)
+
+> Uses the **same sandbox keys** — no user eBay connection needed (the Browse
+> API search accepts an application access token). Sandbox ended-item data is
+> sparse, so **sold comps may legitimately return empty** — the reliable sandbox
+> checks are active listings, the metrics math, and the honest "no sold data"
+> state. Endpoint: `POST /api/marketplaces/ebay/research` (`research.ts`).
+
+1. **Valid search.** Open **Research** (sidebar → Selling → Research), search
+   `vintage levi's 501`. Expect a verdict card, a metrics grid, and an **Active
+   listings** section with real sandbox listings (title, price, condition,
+   thumbnail, link out to eBay).
+2. **Sold comps (may be empty in sandbox).** If the **Recent sold comps**
+   section appears, check that prices are formatted, sold dates show, and links
+   open the right listing. If it's empty, verify instead that the page shows the
+   blue "no sold comps" note and **no** sell-through/sold-price cards — metrics
+   must never be fabricated.
+3. **Sell-through sanity.** With any result, open the **"How this is
+   calculated"** tooltip and confirm it explains `sold ÷ (sold + active) × 100`
+   and the strong/moderate/low thresholds.
+4. **Calculator.** In "Will it profit?", enter purchase $10, sale $50, shipping
+   $8, fees $7 → profit ≈ $25 and ROI ≈ 100% (of $25 total costs). Check the
+   numbers update instantly and match decimal math.
+5. **Empty query.** Clear the box, click Search → friendly "Enter something to
+   search for." error.
+6. **Rate limit.** Hammer Search >60× in an hour (or set
+   `EBAY_RESEARCH_LIMIT_PER_HOUR=2` in `.env.local` and hit it 3×) → 429
+   "You've hit the hourly limit for item research…"
+7. **Two-user isolation.** With user A, search and **Save research**. Sign in as
+   a second user → Research history is empty; user A's history still shows the
+   entry. Direct API check:
+   ```sql
+   select owner_id, query from research_history; -- only the saver's rows
+   ```
+8. **Auth.** `curl -X POST $BASE/research -H "Content-Type: application/json"
+   -d '{"query":"levi's 501"}'` **without** a token → 401.
+9. **Add to inventory.** On a result, **Add to inventory** → the Add Inventory
+   form opens pre-filled (name + asking price) with the "Pre-filled from item
+   research" banner; nothing is saved until you confirm.
+
+**Pass criteria:** every check above behaves as written, and no error message
+leaks raw API text, tokens, or stack traces.
+
+---
+
+## 12. Cleaning up
 
 - End any test listings (unlist via the app, or from the sandbox seller hub).
 - Remove the test `ebay_tokens` row if you want a clean slate:

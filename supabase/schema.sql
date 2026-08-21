@@ -447,6 +447,29 @@ create table if not exists ebay_tokens (
   updated_at timestamptz not null default now()
 );
 
+-- ------------------------------------------------------------
+-- research_history — optional saved item research (sold comps)
+-- A snapshot of a Research page result (query + metrics + the
+-- listings returned) is stored per user so history can re-render
+-- without re-hitting eBay. Rows are written by the server under
+-- the verified user id; RLS scopes every row to its owner.
+-- ------------------------------------------------------------
+create table if not exists research_history (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid references users(id) on delete cascade,
+  query text not null,
+  result jsonb not null default '{}'::jsonb,
+  searched_at timestamptz not null default now()
+);
+
+create index if not exists research_history_owner_idx
+  on research_history (owner_id, searched_at desc);
+
+drop trigger if exists research_history_set_owner on research_history;
+create trigger research_history_set_owner
+  before insert on research_history
+  for each row execute function public.set_owner_id();
+
 drop trigger if exists ebay_tokens_set_updated_at on ebay_tokens;
 create trigger ebay_tokens_set_updated_at
   before update on ebay_tokens
@@ -704,6 +727,20 @@ create policy "settings_update_own" on app_settings
 
 drop policy if exists "settings_delete_own" on app_settings;
 create policy "settings_delete_own" on app_settings
+  for delete using (owner_id = auth.uid());
+
+-- ── research_history ──
+alter table research_history enable row level security;
+drop policy if exists "research_history_select_own" on research_history;
+create policy "research_history_select_own" on research_history
+  for select using (owner_id = auth.uid());
+
+drop policy if exists "research_history_insert_own" on research_history;
+create policy "research_history_insert_own" on research_history
+  for insert with check (owner_id = auth.uid());
+
+drop policy if exists "research_history_delete_own" on research_history;
+create policy "research_history_delete_own" on research_history
   for delete using (owner_id = auth.uid());
 
 -- ── ebay_tokens ──

@@ -35,6 +35,10 @@ import {
 } from "./oauth.js";
 import { ebayConfigured, DEFAULT_EBAY_CATEGORY_ID } from "./config.js";
 import {
+  EBAY_RESEARCH_LIMIT_GLOBAL_PER_DAY,
+  EBAY_RESEARCH_LIMIT_PER_HOUR,
+} from "../../env.js";
+import {
   createInventoryItem,
   createOffer,
   ensurePolicies,
@@ -47,6 +51,13 @@ import {
   publishOffer,
   withdrawOffer,
 } from "./api.js";
+import {
+  deleteResearch,
+  listResearchHistory,
+  ResearchRateLimitedError,
+  runResearch,
+  saveResearch,
+} from "./research.js";
 import {
   deleteTokenRecord,
   getTokenRecord,
@@ -440,12 +451,111 @@ ebayRouter.post(
 
 /* ── Error handling for this router ────────────────────────────────── */
 
+/* ── Research (item research / sold comps) ───────────────────── */
+
+// Research is read-only and cheap per call, but eBay's Buy API quota is
+// per APP KEY and shared by every user — so we add two guard rails: a
+// per-user hourly cap and a server-wide daily cap. eBay's own 429s are
+// surfaced as ResearchRateLimitedError with a friendly message.
+const researchBuckets = new Map<string, { count: number; resetAt: number }>();
+const globalResearch = { day: "", count: 0 };
+
+function throttleResearch(userId: string): void {
+  const now = Date.now();
+  const bucket = researchBuckets.get(userId);
+  if (!bucket || bucket.resetAt <= now) {
+    researchBuckets.set(userId, { count: 1, resetAt: now + 60 * 60 * 1000 });
+  } else {
+    bucket.count += 1;
+    if (bucket.count > EBAY_RESEARCH_LIMIT_PER_HOUR) {
+      throw new ResearchRateLimitedError(
+        "You've hit the hourly limit for item research. Try again in a little while."
+      );
+    }
+  }
+  const day = new Date().toISOString().slice(0, 10);
+  if (globalResearch.day !== day) {
+    globalResearch.day = day;
+    globalResearch.count = 0;
+  }
+  globalResearch.count += 1;
+  if (globalResearch.count > EBAY_RESEARCH_LIMIT_GLOBAL_PER_DAY) {
+    throw new ResearchRateLimitedError(
+      "Research is temporarily busy across the app. Try again later today."
+    );
+  }
+}
+
+/**
+ * POST /api/marketplaces/ebay/research
+ * Body: { query: string, save?: boolean }
+ * Runs a live eBay research search (active + sold comps) and computes
+ * the resale metrics. Set save:true to persist it to the user's
+ * research history. Identical queries are cached for 30 minutes.
+ */
+ebayRouter.post(
+  "/research",
+  handle(async (req, res) => {
+    const userId = await requireUser(req);
+    requireEbayConfigured();
+    throttleResearch(userId);
+
+    const rawQuery = typeof req.body?.query === "string" ? req.body.query : "";
+    const query = rawQuery.trim();
+    if (!query) {
+      res.status(400).json({ error: "Enter something to search for." });
+      return;
+    }
+    if (query.length > 200) {
+      res.status(400).json({ error: "That search is too long — keep it under 200 characters." });
+      return;
+    }
+
+    const client = userScopedClient(reqBearerToken(req));
+    const result = await runResearch(query);
+    let saved: { id: string; searchedAt: string } | null = null;
+    if (req.body?.save === true) {
+      saved = await saveResearch(client, userId, result);
+    }
+    res.json({ result, saved });
+  })
+);
+
+/** GET /api/marketplaces/ebay/research/history — the user's saved research. */
+ebayRouter.get(
+  "/research/history",
+  handle(async (req, res) => {
+    const userId = await requireUser(req);
+    const client = userScopedClient(reqBearerToken(req));
+    const history = await listResearchHistory(client, userId);
+    res.json({ history });
+  })
+);
+
+/** DELETE /api/marketplaces/ebay/research/history/:id — remove one save. */
+ebayRouter.delete(
+  "/research/history/:id",
+  handle(async (req, res) => {
+    const userId = await requireUser(req);
+    const id = typeof req.params.id === "string" ? req.params.id : "";
+    if (!id) {
+      res.status(400).json({ error: "Missing research id." });
+      return;
+    }
+    const client = userScopedClient(reqBearerToken(req));
+    await deleteResearch(client, userId, id);
+    res.json({ ok: true });
+  })
+);
+
+/* ── Error handling for this router ───────────────────────────── */
+
 ebayRouter.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AuthError) {
     res.status(401).json({ error: err.message });
     return;
   }
-  if (err instanceof EbayRateLimitedError) {
+  if (err instanceof ResearchRateLimitedError || err instanceof EbayRateLimitedError) {
     res.status(429).json({ error: err.message });
     return;
   }

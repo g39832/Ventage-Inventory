@@ -72,3 +72,20 @@ export const EBAY_REDIRECT_URI = process.env.EBAY_REDIRECT_URI ?? "";
 /** Set to "true" to run against the eBay sandbox instead of production. */
 export const EBAY_SANDBOX =
   (process.env.EBAY_SANDBOX ?? "").toLowerCase() === "true";
+
+/* ── Item research (sold comps) guard rails ──────────────────────
+ * The Buy API quota is per APP KEY and shared by every user, so
+ * research is throttled twice: per user per hour, and app-wide per
+ * day. eBay's own default Buy API quota is ~5,000 calls/day.
+ */
+// Guard rails must never be disabled by a bad env value (Number("abc") is
+// NaN, and NaN comparisons are always false — which would silently unlock
+// the limiters). Fall back to the defaults on anything non-positive.
+export const EBAY_RESEARCH_LIMIT_PER_HOUR = (() => {
+  const v = Number(process.env.EBAY_RESEARCH_LIMIT_PER_HOUR ?? 60);
+  return Number.isFinite(v) && v > 0 ? v : 60;
+})();
+export const EBAY_RESEARCH_LIMIT_GLOBAL_PER_DAY = (() => {
+  const v = Number(process.env.EBAY_RESEARCH_LIMIT_GLOBAL_PER_DAY ?? 1500);
+  return Number.isFinite(v) && v > 0 ? v : 1500;
+})();
