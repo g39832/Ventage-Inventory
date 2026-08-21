@@ -75,7 +75,14 @@ export async function getSettings(): Promise<AppSettings> {
       };
     }
     // Seed the row on first use so saves have something to update.
-    await client.from("app_settings").insert({ owner_id: ownerId, ...DEFAULT_SETTINGS });
+    // If the users row was cleaned up, fetchProfile() already recreated it.
+    const { error: insertErr } = await client
+      .from("app_settings")
+      .insert({ owner_id: ownerId, ...DEFAULT_SETTINGS });
+    if (insertErr) {
+      // FK violation — users row may still be missing. Return defaults.
+      console.warn("[settings] insert failed:", insertErr.message);
+    }
     return DEFAULT_SETTINGS;
   } catch {
     // Table may not exist yet or have schema differences — safe fallback.
@@ -90,7 +97,34 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
     const { error } = await client
       .from("app_settings")
       .upsert({ owner_id: ownerId, ...settings }, { onConflict: "owner_id" });
-    if (error) throw new Error(error.message);
+    if (error) {
+      // FK violation: users row may be missing (e.g. after database cleanup).
+      // Recreate the profile row and retry.
+      if (/foreign key/i.test(error.message)) {
+        const { data: authUser } = await client.auth.getUser();
+        if (authUser?.user) {
+          const meta = authUser.user.user_metadata ?? {};
+          await client.from("users").upsert(
+            {
+              id: ownerId,
+              email: authUser.user.email ?? "",
+              display_name:
+                String(meta.display_name ?? meta.full_name ?? meta.name ?? "") ||
+                (authUser.user.email ?? "User").split("@")[0],
+              avatar_url: String(meta.avatar_url ?? meta.picture ?? "") || undefined,
+            },
+            { onConflict: "id" }
+          );
+          // Retry the settings save.
+          const { error: retryErr } = await client
+            .from("app_settings")
+            .upsert({ owner_id: ownerId, ...settings }, { onConflict: "owner_id" });
+          if (retryErr) console.warn("[settings] retry failed:", retryErr.message);
+        }
+      } else {
+        console.warn("[settings] saveSettings failed:", error.message);
+      }
+    }
   } catch (e) {
     // If settings can't be persisted (table missing, schema mismatch),
     // silently succeed — the in-memory state is still updated.

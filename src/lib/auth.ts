@@ -135,7 +135,36 @@ export async function fetchProfile(userId: string): Promise<AppUser | null> {
     .eq("id", userId)
     .maybeSingle();
   if (error) throw new Error(friendlyError(error));
-  if (!data) return null;
+  if (!data) {
+    // Profile row was deleted (e.g. database cleanup) but auth user still
+    // exists. Recreate it so FK constraints (app_settings etc.) are satisfied.
+    const { data: authUser } = await client.auth.getUser();
+    if (!authUser.user) return null;
+    const meta = authUser.user.user_metadata ?? {};
+    const email = authUser.user.email ?? "";
+    const displayName =
+      String(meta.display_name ?? meta.full_name ?? meta.name ?? "") ||
+      email.split("@")[0] ||
+      "User";
+    const avatarUrl =
+      String(meta.avatar_url ?? meta.picture ?? "") || undefined;
+    const { error: insertErr } = await client.from("users").upsert(
+      { id: userId, email, display_name: displayName, avatar_url: avatarUrl },
+      { onConflict: "id" }
+    );
+    if (insertErr) {
+      console.warn("[auth] failed to recreate profile row:", insertErr.message);
+      // Return a best-effort profile from auth metadata even if insert fails.
+      return {
+        id: userId,
+        email,
+        displayName,
+        avatarUrl,
+        onboarded: false,
+      };
+    }
+    return { id: userId, email, displayName, avatarUrl, onboarded: false };
+  }
   return {
     id: data.id as string,
     email: (data.email as string | null) ?? "",
